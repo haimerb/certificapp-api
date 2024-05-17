@@ -27,8 +27,8 @@ class DatabaseService{
          $this->db_user = $obj->username;
          $this->db_password= $obj->password;
 
-         echo  json_encode($obj);
-         echo  "  \n host: ".$this->db_host;
+         //echo  json_encode($obj);
+         //echo  "  \n host: ".$this->db_host;
 	}
     public function getConnection(){
         
