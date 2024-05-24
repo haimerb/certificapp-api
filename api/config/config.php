@@ -1,26 +1,9 @@
 <?php
-// /**
-//  * @author Haymer Barbeti
-//  * 
-//  * 
-//  *
-//  * Valores de configuracion de bases de datos
-//  */
-// define("DB_HOST", "localhost");
-// define("DB", "apex");
-// define("DB_USER", "root");
-// define("DB_PASS", "");
-
-// /** 
-//  * Definicion de opciones 
-//  */
-// define("DEFAULT_CONTROLLER", "paciente");
-// define("DEFAULT_ACTION", "list");
-
-// /**
-//  * Control y definicines para la api
-//  */
-// define("DOMAIN","localhost");
+/**
+ * @author haimerb
+ * 
+ * Valores de configuracion de bases de datos
+ */
 
 return
 json_encode(
