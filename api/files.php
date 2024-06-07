@@ -1,6 +1,7 @@
 <?php
 
 header("Access-Control-Allow-Origin: http://localhost:8080");
+// header("Content-Type:  application/pdf; multipart/form-data; charset=utf-8");
 header("Content-Type:  multipart/form-data; charset=utf-8");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Max-Age: 3600");
@@ -20,7 +21,7 @@ if (!isset($_FILES['fileUpload']['error']) ||is_array($_FILES['fileUpload']['err
     $file_error = $_FILES["fileUpload"]["error"];
 }
 
-$pathInfo = $_SERVER['PATH_INFO'];
+ $pathInfo = $_SERVER['PATH_INFO'];
 
 // function upLoad($file_name,$file_type,$file_size,$file_tmp_name,$file_error) {
 //     //$dir_subida=__DIR__."\\tmp\\";
@@ -69,5 +70,5 @@ if($pathInfo==='/files/generarPdf'){
     
 }
 if($pathInfo==='/files/procesFile'){
-    readFileXlsx("Asignaciones_Líneas_Johan Mejía.xlsx");    
+    readFileXlsx("ICA indicador base Bim I 2023.xlsx");    
 }

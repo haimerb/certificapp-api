@@ -24,4 +24,14 @@ define("PROJECT_ROOT_PATH", __DIR__ . "/../");
 
 
 
+ return
+ json_encode(
+ array(
+     "host"=> "localhost",
+     "db_name"=>"apex",
+     "username" => "root",
+     "password" => ""
+     )
+ );
+
 ?>
