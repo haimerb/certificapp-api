@@ -1,26 +1,3 @@
-
-
-<html>
-<head>
- <link href="main.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<script type="importmap">
-    {
-      "imports": {
-        "@material/web/": "https://esm.run/@material/web/"
-      }
-    }
-  </script>
-  <script type="module">
-    import '@material/web/all.js';
-    import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
-
-    document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
-  </script>
-</head>
-<body>
-
-
 <div class="Login" >
   <div class="login-container">
     <div class="login-header">
@@ -28,7 +5,7 @@
         <div class="login-header">
         <!-- <h2 class="md-typescale-display-small" id="colorFont">Inicio de sesión</h2> -->
         <h2  id="colorFont">Inicio de sesión</h2>
-          <form name="form" >
+          <form name="form" action="index.php?controller=login&action=doLogin&email"  method="POST">
 
                   <div >
                     <div id="formFieldsSize" >
@@ -64,7 +41,7 @@
                     <div class="login-btns">
 
                       <div class="btn-left">
-                        <md-filled-button class="btn btn-primary" type="submit"  variant="contained">
+                        <md-filled-button  class="btn btn-primary" type="submit"  variant="contained">
                           Entrar
                         </md-filled-button>
                         
@@ -97,14 +74,3 @@
   </div>
 
 </div>
-<style>
-    form {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 16px;            
-    }
-
-  </style>
-  </body>
-  </html>
