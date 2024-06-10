@@ -75,7 +75,7 @@ if($method==='GET'){
         uploadFile($file_name,$file_type,$file_size,$file_tmp_name,$file_error);    
     }
     if($pathInfo==='/files/procesFile'){
-        //http_response_code(200);
+        http_response_code(200);
         readFileXlsx("ICA indicador base Bim I 2023.xlsx",$conn,$whitOutSave,$ini,$end);    
     }
 
