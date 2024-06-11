@@ -36,7 +36,7 @@ $conn = $databaseService->getConnection();
 
 $data = json_decode(file_get_contents("php://input",false,$contexto));
 //$id_user=$data->user;
-$id_organization=isset($data->idOrganization)?$data->idOrganization:"";
+$id_organization=isset($data->idOrganization)?$data->idOrganization:(isset($_REQUEST['idOrganization'])?$_REQUEST['idOrganization']:"");
 
 $table_name = 'certificados_generados';
 $table_name_type_certificates = 'type_certificates';
@@ -109,12 +109,12 @@ function allCertificates($id_organization,$querySelect,$conn){
                 // }
                 //$names_certificate=$row;
 
-                    http_response_code(200);
+                    //http_response_code(200);
                     // $headers = [
                     //     'x-forwarded-for' => 'www.google.com'
                     // ];
             
-                    echo json_encode([$row]
+                    echo json_encode($row
                         // array(
                         //     // "nombres" => $names_certificate,
                         //     // "firstname" => $firstname,
@@ -165,8 +165,8 @@ if($method==='GET'){
         allCertificates($id_organization,$querySelect,$conn);
     }
 }else{
-    http_response_code(401);
-    echo json_encode(array("message" => "Mehtod not allowed"));
+    //http_response_code(401);
+    echo json_encode(array("message" => "Mehtod not allowed","code" => "401"));
 }
 
 
