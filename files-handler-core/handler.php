@@ -5,12 +5,16 @@
  **/
 require "../vendor/autoload.php";
 include_once '../files-handler-core/templates/file.php';
+// include_once './config/database.php';
+// $configs=include('./config/config.php');
+
 
 use Mpdf\HTMLParserMode;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+
 
 
 function uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_error)
@@ -36,28 +40,130 @@ function uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_er
     }
 }
 
-function readFileXlsx($nameFile)
-{
+function readFileXlsx($nameFile,$conn,$whitOutSave,$ini,$end) {
+
+    $salida =array();
+  
 
     $rutaArchivo = 'C:/Users/hbarb/OneDrive/fuentes/atg/back/apext-api/api/tmp/' . $nameFile;
     $spreadsheet = IOFactory::load($rutaArchivo);
     $hoja = $spreadsheet->getActiveSheet();
 
-    $salida = array();
+    
 
     foreach ($hoja->getRowIterator() as $fila) {
 
         foreach ($fila->getCellIterator() as $celda) {
 
             array_push($salida, $celda->getCalculatedValue());
+            //Aqui se graba la data en la base de datos
+            // if($whitOutSave!==null&&$whitOutSave===true) {
 
+            // }
 
             //echo $celda->getCalculatedValue() . " \n "; // Imprime el contenido de la celda
         }
         //echo "<br>";
-        print_r($salida);
+        //print_r($salida);
+    }
+    $toSave=array();
+    $tmpTransformed=array();
+    $cont=0;
+    $tipoRet="";
+    $nit="";
+    $razonSocial="";
+    $nombreConcepto="";
+    $base="";
+    $valorRetenido="";
+    $porcentaje="";
+    for ($i=8; $i<sizeof($salida) ;$i++) {
+        if($cont===1){
+            $tipoRet=$salida[$i];
+        }elseif($cont===2){
+            $nit=$salida[$i];
+        }elseif($cont===3){ 
+            $razonSocial=$salida[$i];
+        }elseif($cont===4){
+            $nombreConcepto=$salida[$i];
+        }elseif($cont===5){
+            $base=$salida[$i];
+        }elseif($cont===6){
+            $valorRetenido=$salida[$i];
+        }elseif($cont===7){
+            $porcentaje=$salida[$i];
+        }elseif($cont===8){
+            array_push($toSave,array(
+                "tipoRetencion"=>$tipoRet,
+                "nit"=>$nit,
+                "razonSocial"=>$razonSocial,
+                "nombreConcepto"=>$nombreConcepto,
+                "base"=>$base,
+                "valorRetenido"=>$valorRetenido,
+                "porcentaje"=>$porcentaje
+            ));
+            $cont=-1;
+        }
+        $cont+=1;
+    }
+    //print_r($toSave);
+    $workArray=array();
+    $iterator=0;
+    //print_r($whitOutSave." WITHOUT");
+    if($whitOutSave===true){
+
+        foreach($toSave as $save){
+            $workArray=$save;
+            if($iterator>8){
+                saveArray($workArray,$ini,$end,$conn);
+            }
+            $iterator+=$iterator+1;
+        }
+
+        
+    }
+    
+}
+
+
+function saveArray($arr,$ini,$end,$conn){
+      $query = "INSERT INTO certificate_data_ica
+                SET tipo_retencion = :tipo_retencion,
+                    nit = :nit,
+                    razon_social = :razon_social,
+                    nombre_concepto = :nombre_concepto,
+                    base = :base,
+                    valor_retenido = :valor_retenido,
+                    porcentaje = :porcentaje,
+                    year_tribute = '2023'
+                    
+                    ";
+
+    $stmt = $conn->prepare($query);
+
+    $stmt->bindParam(':tipo_retencion', $arr["tipoRetencion"]);
+    $stmt->bindParam(':nit', $arr["nit"]);
+    $stmt->bindParam(':razon_social', $arr["razonSocial"]);
+    $stmt->bindParam(':nombre_concepto', $arr["nombreConcepto"]);
+    $stmt->bindParam(':base', $arr["base"]);
+    $stmt->bindParam(':valor_retenido', $arr["valorRetenido"]);
+    $stmt->bindParam(':porcentaje', $arr["porcentaje"]);
+    // $stmt->bindParam(':year_tribute',  "2023");
+    //$stmt->bindParam(':range_ini', $arr["range_ini"]);
+    //$stmt->bindParam(':range_end', $arr["range_end"]);
+
+    //PDO::PARAM_INT
+    
+    if($stmt->execute()){
+        //http_response_code(200);
+        echo json_encode(array("message" => "registro was successfully create."));
+    }
+    else{
+        //http_response_code(400);
+    
+        echo json_encode(array("message" => "Unable to register the certificate."));
     }
 }
+
 
 function generateDocPdf()
 {   

@@ -36,15 +36,24 @@ $conn = $databaseService->getConnection();
 
 $data = json_decode(file_get_contents("php://input",false,$contexto));
 //$id_user=$data->user;
-$id_organization=isset($data->idOrganization)?$data->idOrganization:"";
+$id_organization=isset($data->idOrganization)?$data->idOrganization:(isset($_REQUEST['idOrganization'])?$_REQUEST['idOrganization']:"");
 
 $table_name = 'certificados_generados';
 $table_name_type_certificates = 'type_certificates';
 
 
-$querySelect='select * from '.$table_name.' cg
+$querySelect='select  
+                    cg.id_certificados_generado,
+                    cg.tipo_certificado,
+                    id_certificados_generado,
+                    cg.nombre, 
+                    cg.organization_asociate, 
+                    o.name,
+                    o.nit,
+                    o.dv
+from '.$table_name.' cg
 inner join organizations o ON o.id_organization =cg.organization_asociate 
-where o.id_organization =? ';
+where cg.organization_asociate =:organization_asociate ';
 
 
 // function usersById($id_user,$querySelect,$conn){
@@ -78,34 +87,34 @@ where o.id_organization =? ';
 
 function allCertificates($id_organization,$querySelect,$conn){
     $stmt = $conn->prepare( $querySelect );
-    $stmt->bindParam(1,$id_organization);
+    $stmt->bindParam(':organization_asociate',$id_organization);
     $stmt->execute();
     $num = $stmt->rowCount();
     
 
     if($num > 0){
-                $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                print_r(json_encode($row) );
+                $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                //print_r(json_encode($row) );
                 // $id = $row['id'];
                 // $firstname = $row['first_name'];
                 // $lastname = $row['last_name'];
                 // $i = 0;
-                $array_certificates=array();
+                //$array_certificates=array();
                 
-                for ($i=0; $i<$num; $i++) {
-                    // $valor = $valor * 2;
-                    //array_push($array_certificates,array($row[$i]=>$valor) );
-                    print_r($row[$i]);
+                // for ($i=0; $i<$num; $i++) {
+                //     // $valor = $valor * 2;
+                //     //array_push($array_certificates,array($row[$i]=>$valor) );
+                //     print_r($row[$i]);
                     
-                }
+                // }
                 //$names_certificate=$row;
 
-                    http_response_code(200);
+                    //http_response_code(200);
                     // $headers = [
                     //     'x-forwarded-for' => 'www.google.com'
                     // ];
             
-                    echo json_encode($array_certificates
+                    echo json_encode($row
                         // array(
                         //     // "nombres" => $names_certificate,
                         //     // "firstname" => $firstname,
@@ -139,9 +148,9 @@ if($pathInfo==='/user'){
     usersById($id_user,$querySelect,$conn);
 }
 
-if($pathInfo==='/certifications'){
-    allCertificates($id_organization,$querySelect,$conn);
-}
+// if($pathInfo==='/certifications'){
+//     allCertificates($id_organization,$querySelect,$conn);
+// }
 
 
 /**
@@ -152,9 +161,12 @@ if($method==='GET'){
         //print_r($method);
         getAllTypesCertificates($table_name_type_certificates,$conn);
     }    
+    if($pathInfo==='/certifications'){
+        allCertificates($id_organization,$querySelect,$conn);
+    }
 }else{
-    http_response_code(401);
-    echo json_encode(array("message" => "Mehtod not allowed"));
+    //http_response_code(401);
+    echo json_encode(array("message" => "Mehtod not allowed","code" => "401"));
 }
 
 
