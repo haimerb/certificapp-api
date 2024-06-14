@@ -23,12 +23,13 @@ function uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_er
     $dir_subida = "C:/Users/hbarb/OneDrive/fuentes/atg/back/apext-api/api/tmp/";
     $fichero_subido = $dir_subida . basename($file_name);
 
-    print_r("\n El Archivo_ " . $fichero_subido . "\n");
+    //print_r("\n El Archivo_ " . $fichero_subido . "\n");
 
     if (move_uploaded_file($file_tmp_name, $fichero_subido)) {
         echo json_encode(
             array(
-                "result" => "El fichero es válido y se subió con éxito."
+                "result" => "El fichero es válido y se subió con éxito.",
+                "code" => "200"
             )
         );
     } else {

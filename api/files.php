@@ -1,7 +1,8 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost:8080");
+header("Access-Control-Allow-Origin: http://localhost:4200");
 // header("Content-Type:  application/pdf; multipart/form-data; charset=utf-8");
-header("Content-Type: application/json; charset=UTF-8");
+header("Content-Type: multipart/form-data; application/json; charset=UTF-8");
+
 //header("Content-Type:  multipart/form-data; charset=utf-8");
 header("Access-Control-Allow-Methods: GET POST");
 header("Access-Control-Max-Age: 3600");
@@ -63,6 +64,7 @@ if($method==='GET'){
 
     if($pathInfo==='/files'){
         if (!isset($_FILES['fileUpload']['error']) ||is_array($_FILES['fileUpload']['error'])){
+            echo "ERROR";
             throw new RuntimeException('Invalid parameters.');
         }else{
             $file_name     = $_FILES["fileUpload"]["name"];

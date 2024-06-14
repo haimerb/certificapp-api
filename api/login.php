@@ -30,7 +30,7 @@ $data = json_decode(file_get_contents("php://input"));
 $email = $data->email;
 $password = $data->password;
 
-$table_name = 'Users';
+$table_name = 'users';
 
 //$query = "SELECT id_user, first_name, last_name, password FROM " . $table_name . " WHERE email = ? LIMIT 0,1";
 
