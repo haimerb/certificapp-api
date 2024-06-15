@@ -5,6 +5,8 @@
  **/
 require "../vendor/autoload.php";
 include_once '../files-handler-core/templates/file.php';
+
+include_once '../core/model/certificate.php';
 // include_once './config/database.php';
 // $configs=include('./config/config.php');
 
@@ -166,10 +168,84 @@ function saveArray($arr,$ini,$end,$conn){
 }
 
 
-function generateDocPdf()
+function  getCertificatesByOrg($conn):array {
+    $query ='select * 
+               from certificados_generados cg 
+               inner join certificates_x_values cxv ON cxv.id_certificados_generado =cg.id_certificados_generado 
+               inner join values_certificates vc on vc.id_values =cxv.id_values
+             ';
+
+    $stmt = $conn->prepare( $query );
+    //$stmt->bindParam(1, $email);
+    $stmt->execute();
+    $num = $stmt->rowCount();
+
+    
+    $certificates=[];
+    if($num>0) {
+        //echo "Ingresó";
+        $row = $stmt->fetchAll();
+        $object = new stdClass();
+        //echo json_encode($row);
+        for ($i=0; $i<$num;$i++)
+        {
+            array_push($certificates,array(
+                "id_certificados_generado"=>$row[$i]["id_certificados_generado"],
+                "tipo_certificado"=>$row[$i]["tipo_certificado"],
+                "nombre"=>$row[$i]["nombre"],
+                "organization_asociate"=>$row[$i]["organization_asociate"],
+                "ret_razon_social"=>$row[$i]["ret_razon_social"],
+                "ret_nit"=>$row[$i]["ret_nit"],
+                "ret_concepto_retencion"=>$row[$i]["ret_concepto_retencion"],
+                "anio_gravable"=>$row[$i]["anio_gravable"],
+                "id_certificate_value"=>$row[$i]["id_certificate_value"],
+                "id_values"=>$row[$i]["id_values"],
+                "concepto"=>$row[$i]["concepto"],
+                "base_retencion"=>$row[$i]["base_retencion"],
+                "valor_retenido"=>$row[$i]["valor_retenido"]
+            ));
+        }
+        //echo $certificate->getId_certificados_generado();
+        //return json_encode($certificates);
+
+        //echo json_encode($certificates);
+        return $certificates;
+    }         
+ 
+}
+
+function generateDocPdf($conn)
 {   
     ini_set("memory_limit","-1");
     header("Content-Type:  application/pdf; charset=utf-8");
+
+    $certificatesData=array();
+    $certificatesData=getCertificatesByOrg($conn);
+
+    $servicios="";
+    $compras="";
+    $valor_ret_servicios="";
+    $valor_ret_compra="";
+    $regxServicios="Servicios";
+    $regxCompra="Comercial";
+
+    $razonSocialRet=$certificatesData[0]["ret_razon_social"];
+    $nitRet=$certificatesData[0]["ret_nit"];
+    $porcentRetServicios=0;
+
+    for($i=0;$i<count($certificatesData);$i++){
+        if(strpos($certificatesData[$i]["concepto"], $regxServicios)!==false ){
+            $servicios.='<td>$ '.$certificatesData[$i]["base_retencion"].'</td>';
+            $valor_ret_servicios.='<td>$ '.$certificatesData[$i]["valor_retenido"].'</td>';
+        }
+
+        if(strpos($certificatesData[$i]["concepto"], $regxCompra)!==false ){
+            $compras.='<td>$ '.$certificatesData[$i]["base_retencion"].'</td>';
+            $valor_ret_compra.='<td>$ '.$certificatesData[$i]["valor_retenido"].'</td>';
+        }
+        
+    }
+    
     $strHtml = include ('../files-handler-core/templates/file.php');
     
 
@@ -192,28 +268,37 @@ function generateDocPdf()
 
     //$stylesheet=include('/style.css');
     //print_r($stylesheet);
+    
     $mpdf->WriteHTML(
-        '
-        body {
+        'body {
             font-family: Arial, sans-serif;
             border-style: solid;
-            font-size: 9pt;
-        }
-        
+            font-size: 8.4pt;
+        } 
         .header {
             text-align: center;
-            border-bottom: 2px solid;
+            border-bottom: 1.4px solid;
+            border-top: 1.4px solid;
+            border-left: 1.4px solid;
+            border-right: 1.4px solid;
         }  
         
         .content {
-            margin: 20px;
+            //margin: 20px;
             align-items: center;
             justify-content: center;
-            border-width: 100%;        
+
+             border-bottom: 1.4px solid;
+            //border-top: 1.4px solid;
+            border-left: 1.4px solid;
+            border-right: 1.4px solid;
+            
+            
         }
         
         .section {
-            margin-bottom: 20px;            
+            //margin-bottom: 20px;      
+            border-top: 1.4px solid;      
         }
         
         .section-title {
@@ -227,7 +312,7 @@ function generateDocPdf()
             width: 100%;
             border-collapse: collapse;
             border-style: solid;
-            border-bottom: 2px solid;
+            border-bottom: 1.4px solid;
         }
         
         .table th,
@@ -236,7 +321,7 @@ function generateDocPdf()
             padding: 8px;
             text-align: left;
             border-style: solid;
-            border-bottom: 2px solid;
+            border-bottom: 1.4px solid;
         }
         
         .footer {
@@ -272,8 +357,6 @@ function generateDocPdf()
         }',
          \Mpdf\HTMLParserMode::HEADER_CSS,true,true);
 
-    // $mpdf->WriteHTML($templateHTML, 4, true, false);
-    // $mpdf->WriteHTML($templateHTML, 4, false, true);
     $mpdf->WriteHTML( 
             '            
             <div class="header" style="text-align: center; border-bottom: 2px solid;" align="center">
@@ -297,11 +380,11 @@ function generateDocPdf()
                     <div class="section middle">
                         <div class="section-title middle">
                             <h2>
-                                &nbsp; IDENTIFICACIÓN DE LA PERSONA O ENTIDAD A QUIEN SE PRACTICÓ LA RETENCION
+                                &nbsp; IDENTIFICACIÓN DE LA PERSONA O ENTIDAD A QUIEN SE PRACTICÓ LA RETENCIÓN
                             </h2>
                         </div>
-                        <p> &nbsp; Apellidos y Nombres o Razón Social: .........: Tl SOLUCIONES DE OCCIDENTE S.A.S.</p>
-                        <p> &nbsp; NIT.........................................................: Tl SOLUCIONES DE OCCIDENTE S.A.S.</p>
+                        <p> &nbsp; Apellidos y Nombres o Razón Social: .........: '.$razonSocialRet.'</p>
+                        <p> &nbsp; NIT...............................................................: '.$nitRet.'</p>
                         <p> &nbsp; Concepto de la retenciónn .......................................: COMPRAS Y/O SERVICIOS</p>
                     </div>
                     <table class="table-middel" border="1">
@@ -310,21 +393,25 @@ function generateDocPdf()
                             <th>BASE DE RETENCION</th>
                             <th>VALOR RETENIDO</th>
                         </tr>
+
                         <tr>
-                            <td>SERVICIOS 4%</td>
-                            <td>$28.012.190</td>
-                            <td>$1.120.488</td>
+                            <td>SERVICIOS 4%</td>'
+                            .$servicios
+                            .$valor_ret_servicios.
+                            '
                         </tr>
                         <tr>
-                            <td>COMPRAS 2,5%</td>
-                            <td>$6.545.800</td>
-                            <td>$163.645</td>
+                            <td>COMPRAS 2,5%</td>$ '
+                            .$compras
+                            .$valor_ret_compra 
+                            .'
                         </tr>
                         <tr>
                             <td>Total</td>
                             <td>$34.557.990</td>
                             <td>$1.284.133</td>
                         </tr>
+
                     </table>
                 </div>    
                 <div class="footer">
@@ -333,7 +420,11 @@ function generateDocPdf()
                            Este documento no requiere para su validez firma autógrafa de acuerdo con el articulo 10 del Decreto 836 de 1991, recopilado en el articulo 1.6.1.12.12 del DUT 1625 de Octubre 11 de 2016, que regula el contenido del certificado de retenciones a título de Renta. 
                         </p>
                     </div>
-                    <p>FECHA DE EXPEDICIÓN: <strong> 26/01/2023 </strong></p>
+                    <p>FECHA DE EXPEDICIÓN: 
+                    <strong>'
+                    .date("Y-m-d").' 
+                    </strong>
+                    </p>
                 </div>', \Mpdf\HTMLParserMode::HTML_BODY,true,true);
     $mpdf->Output();
 }

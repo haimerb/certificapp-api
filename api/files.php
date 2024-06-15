@@ -45,13 +45,13 @@ function generarPdf(){
 if($pathInfo==='/files/validate'){
     //upLoad($file_name,$file_type,$file_size,$file_tmp_name,$file_error);
 }
-if($pathInfo==='/files/generarPdf'){
-    //generarPdf();
-    //testRead();
-    //------readFileXlsx("Asignaciones_Líneas_Johan Mejía.xlsx");
-    generateDocPdf();
+// if($pathInfo==='/files/generarPdf'){
+//     //generarPdf();
+//     //testRead();
+//     //------readFileXlsx("Asignaciones_Líneas_Johan Mejía.xlsx");
+//     generateDocPdf();
     
-}
+// }
 
 /**
  * 
@@ -62,6 +62,10 @@ if($method==='GET'){
     echo json_encode(array("message" => "not implementations","code"=>"200"));
 }elseif($method==='POST'){
 
+    if($pathInfo==='/files/generarPdf'){
+        generateDocPdf($conn);
+        
+    }
     if($pathInfo==='/files'){
         if (!isset($_FILES['fileUpload']['error']) ||is_array($_FILES['fileUpload']['error'])){
             echo "ERROR";
