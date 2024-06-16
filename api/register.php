@@ -1,4 +1,5 @@
 <?php
+$configs=include('./config/config.php');
 include_once './config/database.php';
 
 header("Access-Control-Allow-Origin: * ");
@@ -14,6 +15,7 @@ $password = '';
 $conn = null;
 
 $databaseService = new DatabaseService();
+$databaseService->setConfig($configs);
 $conn = $databaseService->getConnection();
 
 $data = json_decode(file_get_contents("php://input"));

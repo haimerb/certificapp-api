@@ -132,13 +132,12 @@ function  getAllTypesCertificates($table_name_type_certificates,$conn){
     $querySelect='select tc.id_type_certificate,tc.name_type ,tc.description  
                     from '.$table_name_type_certificates.' tc';
     $stmt = $conn->prepare( $querySelect );
-    //$stmt->bindParam(1, $id_user);
     $stmt->execute();
     $num = $stmt->rowCount();
 
     if($num > 0){
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode([$row]);
+        $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode($row);
     }
 
                     
@@ -168,7 +167,3 @@ if($method==='GET'){
     //http_response_code(401);
     echo json_encode(array("message" => "Mehtod not allowed","code" => "401"));
 }
-
-
-
-?>
