@@ -5,9 +5,11 @@ require "../vendor/autoload.php";
 $configs=include('./config/config.php');
 
 use \Firebase\JWT\JWT;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
 
 header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Content-Type: application/json; charset=UTF-8");
+//header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: POST GET");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -38,22 +40,23 @@ $data = json_decode(file_get_contents("php://input",false,$contexto));
 //$id_user=$data->user;
 $id_organization=isset($data->idOrganization)?$data->idOrganization:(isset($_REQUEST['idOrganization'])?$_REQUEST['idOrganization']:"");
 
-$table_name = 'certificados_generados';
-$table_name_type_certificates = 'type_certificates';
+// $table_name = 'certificados_generados';
+// $table_name_type_certificates = 'type_certificates';
 
 
-$querySelect='select  
-                    cg.id_certificados_generado,
-                    cg.tipo_certificado,
-                    id_certificados_generado,
-                    cg.nombre, 
-                    cg.organization_asociate, 
-                    o.name,
-                    o.nit,
-                    o.dv
-from '.$table_name.' cg
-inner join organizations o ON o.id_organization =cg.organization_asociate 
-where cg.organization_asociate =:organization_asociate ';
+// $querySelect='select  
+//                     cg.id_certificados_generado,
+//                     cg.tipo_certificado,
+//                     id_certificados_generado,
+//                     cg.nombre, 
+//                     cg.organization_asociate, 
+//                     o.name,
+//                     o.nit,
+//                     o.dv,
+//                     cg.url_assoc_file
+// from '.$table_name.' cg
+// inner join organizations o ON o.id_organization =cg.organization_asociate 
+// where cg.organization_asociate =:organization_asociate ';
 
 
 // function usersById($id_user,$querySelect,$conn){
@@ -85,7 +88,23 @@ where cg.organization_asociate =:organization_asociate ';
 //     }
 // }
 
-function allCertificates($id_organization,$querySelect,$conn){
+function allCertificates($id_organization,$conn){
+    
+    $querySelect='select  
+                    cg.id_certificados_generado,
+                    cg.tipo_certificado,
+                    id_certificados_generado,
+                    cg.nombre, 
+                    cg.organization_asociate, 
+                    o.name,
+                    o.nit,
+                    o.dv,
+                    cg.url_assoc_file
+from certificados_generados cg
+inner join organizations o ON o.id_organization =cg.organization_asociate 
+where cg.organization_asociate =:organization_asociate and cg.createat is not null
+order by cg.createat ASC  limit 6';
+
     $stmt = $conn->prepare( $querySelect );
     $stmt->bindParam(':organization_asociate',$id_organization);
     $stmt->execute();
@@ -128,17 +147,35 @@ function allCertificates($id_organization,$querySelect,$conn){
 
 }
 
-function  getAllTypesCertificates($table_name_type_certificates,$conn){
+function  getAllTypesCertificates($conn){
+    header("Access-Control-Allow-Origin: *");
+    header("Content-Type: application/json; charset=UTF-8");
+    header("Access-Control-Allow-Methods: POST GET");
+    header("Access-Control-Max-Age: 0");
+    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+    $logger = new Logger('files-logger');
+    $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
+    
     $querySelect='select tc.id_type_certificate,tc.name_type ,tc.description  
-                    from '.$table_name_type_certificates.' tc';
+                    from type_certificates tc';
+
     $stmt = $conn->prepare( $querySelect );
-    //$stmt->bindParam(1, $id_user);
     $stmt->execute();
     $num = $stmt->rowCount();
 
+    $logger->info("Select Query: ".$querySelect);
+
+    $logger->info("Result data: ".$num);
+
+    
     if($num > 0){
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        echo json_encode([$row]);
+        $rowOut = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $logger->info("Result data: ".json_encode($rowOut));
+        echo json_encode($rowOut,JSON_INVALID_UTF8_IGNORE);
+    }else{
+        echo json_encode(array("message" => "QueSQL failed.", "code"=>"401"));
     }
 
                     
@@ -159,16 +196,14 @@ if($pathInfo==='/user'){
 if($method==='GET'){
     if($pathInfo=== '/allTypesCertificates'){
         //print_r($method);
-        getAllTypesCertificates($table_name_type_certificates,$conn);
+        getAllTypesCertificates($conn);
     }    
     if($pathInfo==='/certifications'){
-        allCertificates($id_organization,$querySelect,$conn);
+        allCertificates($id_organization,$conn);
     }
 }else{
     //http_response_code(401);
     echo json_encode(array("message" => "Mehtod not allowed","code" => "401"));
 }
-
-
 
 ?>

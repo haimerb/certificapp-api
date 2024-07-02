@@ -44,5 +44,8 @@ class DatabaseService{
 
         return $this->connection;
     }
+    public function lastInsertId(){
+        return $this->connection->lastInsertId();
+    }
 }
 ?>

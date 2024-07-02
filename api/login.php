@@ -1,9 +1,4 @@
 <?php
-// header("Access-Control-Allow-Origin: *");
-// header("Content-Type: application/json; charset=UTF-8");
-// header("Access-Control-Allow-Methods: POST");
-//  header("Access-Control-Max-Age: 3600");
-// header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 $configs=include('./config/config.php');
 include_once './config/database.php';
 require "../vendor/autoload.php";
@@ -29,11 +24,7 @@ $data = json_decode(file_get_contents("php://input"));
 
 $email = $data->email;
 $password = $data->password;
-
-$table_name = 'Users';
-
-//$query = "SELECT id_user, first_name, last_name, password FROM " . $table_name . " WHERE email = ? LIMIT 0,1";
-
+$table_name = 'users';
 
 $query ='SELECT u.id_user , u.first_name , u.last_name, u.password,
          u.email,o.id_organization ,o.name,o.nit,o.dv  
@@ -56,16 +47,18 @@ if($num > 0){
     $password2 = $row['password'];
     $email=$row['email'];
     $id_organization=$row['id_organization'];
+    $organizationName=$row['name'];
+    $names=$row['first_name']." ".$row['last_name'];
     $nit=$row['nit'];
 
     if(password_verify($password, $password2))
     {
         $secret_key = "YOUR_SECRET_KEY";
-        $issuer_claim = "THE_ISSUER"; // this can be the servername
+        $issuer_claim = "THE_ISSUER"; 
         $audience_claim = "THE_AUDIENCE";
-        $issuedat_claim = time(); // issued at
-        $notbefore_claim = $issuedat_claim + 10; //not before in seconds
-        $expire_claim = $issuedat_claim + 60; // expire time in seconds
+        $issuedat_claim = time(); 
+        $notbefore_claim = $issuedat_claim + 10;
+        $expire_claim = $issuedat_claim + 60; 
         $token = array(
             "iss" => $issuer_claim,
             "aud" => $audience_claim,
@@ -94,13 +87,15 @@ if($num > 0){
                 "email" => $email,
                 "expireAt" => $expire_claim,
                 "id_organization"=>$id_organization,
-                "nit"=>$nit
+                "ornganization_name"=>$organizationName,
+                "names"=>$names,
+                "nit"=>$nit,
+                "code"=>200
             ));
     }
     else{
         echo json_encode(array("message" => "Login failed.", "password" => $password,
-                "code" => "401"));
-        //http_response_code(401);
+                "code" => "401"));        
     }
 }
 

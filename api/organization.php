@@ -95,18 +95,18 @@ function allCertificates($id_organization, $querySelect, $conn)
 function getAllOrganizations($table_name_organization, $nit, $conn)
 {
     //print_r($nit);
-    $querySelectOrg = 'select o.id_organization ,o.name ,o.nit ,o.dv  from organizations o where o.nit =? ';
+    $querySelectOrg = 'select o.id_organization ,o.name ,o.nit ,o.dv  from organizations o ';
     //print_r($querySelectOrg);
     $stmt = $conn->prepare($querySelectOrg);
-    $stmt->bindParam(1, $nit);
+    //$stmt->bindParam(1, $nit);
     $stmt->execute();
     $num = $stmt->rowCount();
     //print_r($num);
 
     if ($num > 0) {
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
         //http_response_code(200);
-        echo json_encode(array($row));
+        echo json_encode($row);
     } else {
         echo json_encode(array("message" => "QueSQL failed."));
     }
