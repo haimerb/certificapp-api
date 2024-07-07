@@ -48,7 +48,8 @@ if($num > 0){
     $email=$row['email'];
     $id_organization=$row['id_organization'];
     $organizationName=$row['name'];
-    $names=$row['first_name']." ".$row['last_name'];
+    $names=$row['first_name'];
+    $lastnames=$row['last_name'];
     $nit=$row['nit'];
 
     if(password_verify($password, $password2))
@@ -89,6 +90,7 @@ if($num > 0){
                 "id_organization"=>$id_organization,
                 "ornganization_name"=>$organizationName,
                 "names"=>$names,
+                "lastname" => $lastnames,
                 "nit"=>$nit,
                 "code"=>200
             ));

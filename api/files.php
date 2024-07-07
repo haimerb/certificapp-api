@@ -13,7 +13,7 @@ use \Firebase\JWT\JWT;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
-header("Access-Control-Allow-Origin: http://localhost:4200/");
+header("Access-Control-Allow-Origin: http://localhost:4200");
 //header("Content-Type: data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8");
 //header("Content-Type:  application/pdf; multipart/form-data; charset=utf-8");
 
@@ -30,6 +30,7 @@ header("Access-Control-Allow-Methods: GET POST");
 header("Cache-Control: no-cache");
 
 header("Access-Control-Max-Age: 3600");
+//header("Accept: */*");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 
@@ -70,15 +71,16 @@ $data = json_decode(file_get_contents("php://input"));
 // }
 
 
-$whitOutSave = isset($data->whitOutSave) ? $data->whitOutSave : "";
-$ini = isset($data->range_ini) ? $data->range_ini : "";
-$end = isset($data->range_end) ? $data->range_end : "";
-$dataType = isset($data->dataType) ? $data->dataType : "";
+//-$whitOutSave = isset($data->whitOutSave) ? $data->whitOutSave : "";
+//-$ini = isset($data->range_ini) ? $data->range_ini : "";
+//-$end = isset($data->range_end) ? $data->range_end : "";
+//-$dataType = isset($data->dataType) ? $data->dataType : "";
 $nameFile = isset($data->nameFile) ? $data->nameFile : "";
 $idCertificate = isset($data->idCertificate) ? $data->idCertificate : "";
 $file = isset($data->file) ? $data->file : "";
 
-echo $_POST['dataType'];
+//-$year_tribute= isset($data->year_tribute) ? $data->year_tribute:"";
+//echo $_POST['dataType'];
 //print_r ($nit." \n ".$tipo_retencion." \n ".$year_tribute." \n idOrganizacion: ".$idOrganizacion );
 
 //$logger->info("Input Params: ".$nit." \n ".$tipo_retencion." \n ".$year_tribute." \n idOrganizacion: ".$idOrganizacion);
@@ -300,6 +302,7 @@ if ($method === 'GET') {
         http_response_code(200);
         if (!isset($_FILES['fileUpload']['error']) || is_array($_FILES['fileUpload']['error'])) {
             echo "ERROR";
+            $logger->error("Error: ".$_FILES['fileUpload']['error']);
             throw new RuntimeException('Invalid parameters.');
         } else {
             $file_name = $_FILES["fileUpload"]["name"];
@@ -308,13 +311,24 @@ if ($method === 'GET') {
             $file_tmp_name = $_FILES["fileUpload"]["tmp_name"];
             $file_error = $_FILES["fileUpload"]["error"];
         }
-        uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_error);
+        uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_error,$conn);
     }
 
+    /**
+     * Migrated to api core
+     */
     if ($pathInfo === '/files/procesFile') {
         
-        http_response_code(200);
-        readFileXlsx($nameFile, $conn, $whitOutSave, $ini, $end, $dataType);
+        header("Access-Control-Allow-Origin: http://localhost:4200");
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Methods: GET POST");
+        header("Accept-Encoding:  gzip, deflate, br");
+        header("Cache-Control: no-cache");
+        header("Access-Control-Max-Age: 3600");
+        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+        //http_response_code(200);
+        readFileXlsx($nameFile, $conn,true,array());
 
     }
 
@@ -326,7 +340,7 @@ if ($method === 'GET') {
         $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : (isset($_REQUEST['idOrganizacion'])?$_REQUEST['idOrganizacion']:"") ;
 
 
-            echo "ALGO!! ";
+            //echo "ALGO!! ";
             generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion);                
     }
 

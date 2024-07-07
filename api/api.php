@@ -30,15 +30,19 @@ $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : "" ;
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Access-Control-Allow-Methods: POST GET");
 header("Access-Control-Max-Age: 3600");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+//header("Content-Type: application/json; charset=UTF-8");
+//header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 /**
  * Get petitions
  */
 
 $logger->info("METHOD: ".$method);
+
 if($method==='GET'){
+    
+    header("Content-Type: application/json; charset=utf-8");
+    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
     http_response_code(200);
     echo json_encode(array("message" => "not implementations", "code" => "200",JSON_INVALID_UTF8_IGNORE));
 
@@ -49,6 +53,30 @@ if($method==='GET'){
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
         generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion);
     }
+    if($pathInfo==='/files/procesFile'){
+        
+        header("Content-Type: application/json; charset=utf-8");
+        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+        
+        $data = json_decode(file_get_contents("php://input"));
+        $nameFile = isset($data->nameFile) ? $data->nameFile : "";
+        
+        http_response_code(200);
+        readFileXlsx($nameFile, $conn,true,array());
+    }
+
+    // if ($pathInfo === '/files/generarPdf') {
+
+    //     header("Content-Type: application/json; charset=utf-8");
+    //     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+        
+    //     $data = json_decode(file_get_contents("php://input"));
+    //     $idCertificate = isset($data->idCertificate) ? $data->idCertificate : "";
+
+    //     http_response_code(200);
+    //     generateDocPdf($conn, $idCertificate);
+
+    // }
 
 }else{
     
