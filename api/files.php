@@ -79,6 +79,9 @@ $nameFile = isset($data->nameFile) ? $data->nameFile : "";
 $idCertificate = isset($data->idCertificate) ? $data->idCertificate : "";
 $file = isset($data->file) ? $data->file : "";
 
+$sinceRange=isset($data->rangeSince) ? $data->rangeSince : "" ;
+$untilRange=isset($data->rangeUntil) ? $data->rangeUntil : "" ;
+
 //-$year_tribute= isset($data->year_tribute) ? $data->year_tribute:"";
 //echo $_POST['dataType'];
 //print_r ($nit." \n ".$tipo_retencion." \n ".$year_tribute." \n idOrganizacion: ".$idOrganizacion );
@@ -341,7 +344,7 @@ if ($method === 'GET') {
 
 
             //echo "ALGO!! ";
-            generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion);                
+            generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion,$sinceRange,$untilRange);
     }
 
 } elseif ($method === 'PUT') {

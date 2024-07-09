@@ -854,8 +854,9 @@ function updateCertificate($conn, $idCertificate, $outPutNameFile)
     $num = $stmt->rowCount();
 }
 
-function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion)
+function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion,$sinceRange,$untilRange)
 {
+    echo $sinceRange,$untilRange;
     $insertRow = 0;
     $certificatesData = [];
     $nombreCert = "";
@@ -865,7 +866,7 @@ function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion)
     $querySelect = 'select * from certificate_data 
                     where dataType=:dataType
                     and nit=:nit
-                    and year_tribute=:year_tribute';
+                    and year_tribute=:year_tribute and range_ini >=:range_ini and range_end <= :range_end';
 
     $logger = new Logger('files-logger');
     $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
@@ -875,6 +876,9 @@ function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion)
     $stmt->bindParam(':dataType', $tipo_retencion);
     $stmt->bindParam(':nit', $nit);
     $stmt->bindParam(':year_tribute', $year);
+    $stmt->bindParam(':range_ini', $sinceRange);
+    $stmt->bindParam(':range_end', $untilRange);
+    
     $stmt->execute();
     $num = $stmt->rowCount();
     // } catch (PDOException $e) {
