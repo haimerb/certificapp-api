@@ -1,6 +1,5 @@
 <?php
 include_once './config/database.php';
-//include_once './config/database.php';
 require "../vendor/autoload.php";
 $configs=include('./config/config.php');
 
@@ -100,10 +99,12 @@ function allCertificates($id_organization,$conn){
                     o.nit,
                     o.dv,
                     cg.url_assoc_file
-from certificados_generados cg
-inner join organizations o ON o.id_organization =cg.organization_asociate 
-where cg.organization_asociate =:organization_asociate and cg.createat is not null
-order by cg.createat ASC  limit 6';
+    from certificados_generados cg
+    inner join organizations o ON o.id_organization =cg.organization_asociate 
+    where cg.organization_asociate =:organization_asociate 
+    and cg.createat is not null 
+    and cg.url_assoc_file !=""
+    order by cg.createat ASC  limit 8';
 
     $stmt = $conn->prepare( $querySelect );
     $stmt->bindParam(':organization_asociate',$id_organization);
@@ -157,8 +158,8 @@ function  getAllTypesCertificates($conn){
     $logger = new Logger('files-logger');
     $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
     
-    $querySelect='select tc.id_type_certificate,tc.name_type ,tc.description  
-                    from type_certificates tc';
+    $querySelect='select tc.id_type_certificate,tc.name_type ,tc.description, tc.indicator  
+                    from type_certificates tc; ';
 
     $stmt = $conn->prepare( $querySelect );
     $stmt->execute();
@@ -177,8 +178,7 @@ function  getAllTypesCertificates($conn){
     }else{
         echo json_encode(array("message" => "QueSQL failed.", "code"=>"401"));
     }
-
-                    
+   
 }
 
 if($pathInfo==='/user'){

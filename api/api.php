@@ -24,6 +24,11 @@ $tipo_retencion = isset($data->tipo_retencion) ? $data->tipo_retencion : "";
 $year_tribute = isset($data->year_tribute) ? $data->year_tribute : "";
 $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : "" ;
 
+$sinceRange=isset($data->rangeSince) ? $data->rangeSince : "" ;
+$untilRange=isset($data->rangeUntil) ? $data->rangeUntil : "" ;
+
+//echo $sinceRange,$untilRange;
+
 /**
  * Set Header
  */
@@ -51,7 +56,7 @@ if($method==='GET'){
     if($pathInfo==='/files/base'){
         header("Content-Type: application/json; charset=utf-8");
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-        generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion);
+        generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion,$sinceRange,$untilRange);
     }
     if($pathInfo==='/files/procesFile'){
         
