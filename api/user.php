@@ -1,15 +1,18 @@
 <?php
+
+error_reporting(E_ALL);
+
+$configs=include('./config/config.php');
 include_once './config/database.php';
-//include_once './config/database.php';
 require "../vendor/autoload.php";
 
 use \Firebase\JWT\JWT;
 
-header("Access-Control-Allow-Origin: http://localhost:8080");
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
-header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+// header("Access-Control-Allow-Origin: http://localhost:8080");
+// header("Content-Type: application/json; charset=UTF-8");
+// header("Access-Control-Allow-Methods: GET");
+// header("Access-Control-Max-Age: 3600");
+// header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 
 
@@ -29,13 +32,75 @@ $email = '';
 $password = '';
 
 $databaseService = new DatabaseService();
+$databaseService->setConfig($configs);
 $conn = $databaseService->getConnection();
 
 $data = json_decode(file_get_contents("php://input",false,$contexto));
-$id_user=$data->user;
+//$id_user=$data->user;
 $table_name = 'Users';
 
 $querySelect = "SELECT id, first_name, last_name FROM " . $table_name . " WHERE id = ? LIMIT 1";
+
+function updateUser($conn,$idUser,$namesUser,$lastNamesuser,$passwordUser){
+  $errors=array();
+  if($idUser==""||$idUser==null){
+    array_push($errors,array(
+        "message"=>"Error: Field idUser is required"        
+    )
+);
+  }  
+  if($namesUser==""||$namesUser==null){
+    array_push($errors,array(
+        "message"=>"Error: Field namesUser is required"        
+        )
+    );
+  }
+  if($lastNamesuser==""||$lastNamesuser==null){
+    array_push($errors,array(
+        "message"=>"Error: Field lastNamesuser is required"        
+    )
+    );
+  }
+  if($passwordUser==""||$passwordUser==null){
+    array_push($errors,array(        
+        "message"=>"Error: Field passwordUser is required"        
+    ));
+  }
+
+ if(count($errors)>0){
+    header("Status: 401 Not Found");
+    http_response_code(401);
+    echo json_encode(
+            array(
+                "status"=>401,
+                "message"=>"Errors found in the request",
+                "error"=>$errors)
+            );
+ }else{
+    $queryUpdate='update users set first_name =:namesUser, 
+                    last_name=:lastNamesuser,
+                    password=:passwordUser
+                    where id_user =:idUser ';
+
+    $stmt = $conn->prepare( $queryUpdate );
+
+    $hash=password_hash($passwordUser, PASSWORD_BCRYPT);
+
+    $stmt->bindParam(':idUser', $idUser);
+    $stmt->bindParam(':namesUser', $namesUser);
+    $stmt->bindParam(':lastNamesuser', $lastNamesuser);
+    $stmt->bindParam(':passwordUser', $hash);  
+    
+    $insert=$stmt->execute();
+    if($insert){
+        http_response_code(200);
+        echo json_encode(
+            array("status"=>200, 
+                  "message" => "User was successfully updated. "),JSON_INVALID_UTF8_IGNORE);
+      }
+ }
+
+}
 
 /**
  * 

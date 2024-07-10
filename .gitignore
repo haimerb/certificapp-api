@@ -6,6 +6,8 @@
 
 /api/tmp
 
+/api/tmp/
+
 #PHP vendors
 
 

@@ -1,7 +1,11 @@
 <?php
+/**
+ * @author hbarb <email>
+ */
 include_once './config/database.php';
 require "../vendor/autoload.php";
 include_once '../files-handler-core/handler.php';
+include_once './user.php';
 $configs=include('./config/config.php');
 
 use \Firebase\JWT\JWT;
@@ -27,30 +31,43 @@ $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : "" ;
 $sinceRange=isset($data->rangeSince) ? $data->rangeSince : "" ;
 $untilRange=isset($data->rangeUntil) ? $data->rangeUntil : "" ;
 
+
+
+
 //echo $sinceRange,$untilRange;
 
 /**
  * Set Header
  */
-header("Access-Control-Allow-Origin: http://localhost:4200");
-header("Access-Control-Allow-Methods: POST GET");
-header("Access-Control-Max-Age: 3600");
-//header("Content-Type: application/json; charset=UTF-8");
-//header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+// header("Access-Control-Allow-Origin: http://localhost:4200");
+// header("Access-Control-Allow-Methods: POST GET PUT");
+// header("Access-Control-Max-Age: 0");
+// //header("Content-Type: application/json; charset=UTF-8");
+// ///header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+header('Access-Control-Allow-Origin: *');
+        header("Allow: GET, POST, PUT, DELETE, UPDATE, OPTIONS");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, UPDATE, OPTIONS");
+        header("Content-Type: application/json; charset=utf-8");
+        header("Accept: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
 
 /**
- * Get petitions
+ * petitions
  */
-
 $logger->info("METHOD: ".$method);
-
+/**
+ * Get
+ */
 if($method==='GET'){
     
     header("Content-Type: application/json; charset=utf-8");
     header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
     http_response_code(200);
     echo json_encode(array("message" => "not implementations", "code" => "200",JSON_INVALID_UTF8_IGNORE));
-
+/**
+ * POST
+ */
 }elseif($method==='POST'){
     
     if($pathInfo==='/files/base'){
@@ -82,6 +99,21 @@ if($method==='GET'){
     //     generateDocPdf($conn, $idCertificate);
 
     // }
+
+/**
+ * PUT 
+ */    
+}elseif($method==='PUT') {
+
+    if($pathInfo==='/user/update'){
+        $data = json_decode(file_get_contents("php://input"));
+
+        $idUser=isset($data->idUser) ? $data->idUser : "" ;
+        $namesUser=isset($data->namesUser) ? $data->namesUser : "" ;
+        $lastNamesuser=isset($data->lastNamesuser) ? $data->lastNamesuser : "" ;
+        $passwordUser=isset($data->passwordUser) ? $data->passwordUser : "" ;
+        updateUser($conn, $idUser,$namesUser,$lastNamesuser,$passwordUser);
+    }
 
 }else{
     
