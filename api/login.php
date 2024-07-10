@@ -92,6 +92,7 @@ if($num > 0){
                 "names"=>$names,
                 "lastname" => $lastnames,
                 "nit"=>$nit,
+                "idUser"=>$id,
                 "code"=>200
             ));
     }

@@ -436,7 +436,7 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
         
         $workArray = array();
         $iterator = 0;
-        $rowsSave = array();
+        $rowsSave = [];
 
         if ($whitOutSave === true) {
 
@@ -451,7 +451,7 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                  */
                 $logger->info("save: " . json_encode($save, JSON_INVALID_UTF8_IGNORE) . " " . sizeof($save) . " iterator: " . $iterator);
                 $objForSave = saveArray($workArray, $peridoSince, $periodUntil, $conn, $dataType, $year_tribute);
-                array_push($rowsSave, $objForSave);
+                array_push($rowsSave,$objForSave);
                 // }
                 $iterator += $iterator + 1;
             }
