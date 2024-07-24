@@ -106,7 +106,7 @@ function getAllOrganizations($table_name_organization, $nit, $conn)
     if ($num > 0) {
         $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
         //http_response_code(200);
-        echo json_encode($row);
+        echo json_encode($row,JSON_INVALID_UTF8_IGNORE);
     } else {
         echo json_encode(array("message" => "QueSQL failed."));
     }

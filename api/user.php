@@ -28,15 +28,12 @@ $opciones = array(
 
 $contexto = stream_context_create($opciones);
 
-$email = '';
-$password = '';
-
 $databaseService = new DatabaseService();
 $databaseService->setConfig($configs);
 $conn = $databaseService->getConnection();
 
 $data = json_decode(file_get_contents("php://input",false,$contexto));
-//$id_user=$data->user;
+
 $table_name = 'Users';
 
 $querySelect = "SELECT id, first_name, last_name FROM " . $table_name . " WHERE id = ? LIMIT 1";
@@ -102,6 +99,49 @@ function updateUser($conn,$idUser,$namesUser,$lastNamesuser,$passwordUser){
 
 }
 
+function getRolsByIdUser($conn, $idUser)
+{
+    $errors = array();
+    if ($idUser == "" || $idUser == null) {
+        array_push(
+            $errors,
+            array(
+                "message" => "Error: Field idUser is required"
+            )
+        );
+    }
+
+    if (count($errors) > 0) {
+        header("Status: 401 Not Found");
+        http_response_code(401);
+        echo json_encode(
+            array(
+                "status" => 401,
+                "message" => "Errors found in the request",
+                "error" => $errors
+            )
+        );
+    } else {
+        $querySelect='select ru.id_rol_user ,ru.id_user , ru.id_rol, r.name_rol 
+                                    from rol_users ru
+                                    inner join rol r on r.id_rol = ru.id_rol
+                                    inner join users u on u.id_user = ru.id_user
+                                    where u.id_user = :idUser';
+        $stmt = $conn->prepare($querySelect);
+        $stmt->bindParam(':idUser', $idUser);
+        $stmt->execute();
+        $num = $stmt->rowCount();
+        if($num>0){
+            $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            http_response_code(200);
+            echo json_encode(
+                array("status"=>200, 
+                      "message" => "User was successfully updated. ",
+                      "result"=>$row
+                    ),JSON_INVALID_UTF8_IGNORE);
+          }
+    }
+}
 /**
  * 
  */

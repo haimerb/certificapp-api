@@ -17,8 +17,8 @@ header("Access-Control-Allow-Origin: http://localhost:4200");
 //header("Content-Type: data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=utf-8");
 //header("Content-Type:  application/pdf; multipart/form-data; charset=utf-8");
 
-header("Content-Type:  application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-//header("Content-Type: application/json; charset=UTF-8");
+//header("Content-Type:  application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+header("Content-Type: application/json; charset=UTF-8");
 
 header("Accept-Encoding:  gzip, deflate, br");
 //header("Content-Type:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
@@ -261,9 +261,25 @@ $method = $_SERVER['REQUEST_METHOD'];
 // }
 
 function downloaadFile($file)
-{
+{   
+    //$env=false;
+    $data = json_decode(file_get_contents("php://input"));
+    $env=isset($data->env)?$data->env:false;
+
     //header("Content-Type:application/json; charset=UTF-8");
-    $url = "/api/tmp/mpdf/outfiles/" . $file;
+    $prodEnv="https://www.ti-soluciones.co/certificapp/apext-api";
+    $DevEnv="http://localhost:8000";
+    $url ='';
+
+    if($env!==''&&$env!==null){
+        if($env===true){
+            $url = $prodEnv."/api/tmp/mpdf/outfiles/" . $file;
+        }else{
+            $url = $DevEnv."/api/tmp/mpdf/outfiles/" . $file;
+        }
+        
+    }
+    //$url = "/api/tmp/mpdf/outfiles/" . $file;
     echo json_encode(
         array(
             "url" => $url,
@@ -316,9 +332,8 @@ if ($method === 'GET') {
         }
         uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_error,$conn);
     }
-
     /**
-     * Migrated to api core
+     * @deprecated Migrated to api core
      */
     if ($pathInfo === '/files/procesFile') {
         
@@ -334,7 +349,9 @@ if ($method === 'GET') {
         readFileXlsx($nameFile, $conn,true,array());
 
     }
-
+    /**
+     * @deprecated Migrated to api core
+     */
     if ($pathInfo === '/files/base') {
 
         $nit = isset($data->nit) ? $data->nit : "";
