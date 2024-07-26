@@ -5,11 +5,11 @@
  **/
 require "../vendor/autoload.php";
 include_once '../files-handler-core/templates/file.php';
+include_once '../core/model/rowItem.php';
 
 include_once '../core/model/certificate.php';
 // include_once './config/database.php';
 // $configs=include('./config/config.php');
-
 
 use Mpdf\HTMLParserMode;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -18,7 +18,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
-
+ini_set("default_charset", "UTF-8");
+mb_internal_encoding("UTF-8");
 
 function uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_error, $conn)
 {
@@ -32,14 +33,6 @@ function uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_er
 
     if (move_uploaded_file($file_tmp_name, $fichero_subido)) {
         $logger->info("El fichero es válido y se subió con éxito. Archivo: " . $file_name);
-        // echo json_encode(
-        //     array(
-        //         "validatorExist" => validateFileExist('../api/tmp/' . $file_name),
-        //         "result" => "El fichero es válido y se subió con éxito.",
-        //         "code" => "200"
-        //     ),
-        //     JSON_INVALID_UTF8_IGNORE
-        // );
         $outArry=
             array(
                 "validatorExist" => validateFileExist('../api/tmp/' . $file_name),
@@ -97,7 +90,6 @@ function validateFileExist($file)
     }
 }
 
-
 function getFromFilePeriod($nameFile, $indexSheet)
 {
     $logger = new Logger('files-logger');
@@ -122,7 +114,6 @@ function getFromFilePeriod($nameFile, $indexSheet)
             JSON_INVALID_UTF8_IGNORE
         );
 }
-
 
 function getFromFileDataType($nameFile, $indexSheet)
 {
@@ -184,8 +175,6 @@ function getFromFileYearTribute($nameFile, $indexSheet)
         );
 }
 
-
-
 function readIca()
 {
     $logger = new Logger('files-logger');
@@ -193,13 +182,9 @@ function readIca()
 
 }
 
-function readIva()
-{
-
-}
-
 function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
-{
+{   
+    $objForSave=array();
     $timeForSince = 0;
     $timeForUntil = 0;
 
@@ -276,89 +261,14 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
         $dv = "";
         $razonSocial = "";
         $nombreConcepto = "";
+        $ciudadFormNomConcepto = "";
         $base = "";
         $valorRetenido = "";
         $porcentaje = "";
 
         $logger->info("salida: " . json_encode($salida, JSON_INVALID_UTF8_IGNORE) . " Cantidad: " . sizeof($salida));
 
-        // if($dataType === 1){
-
-        //     for ($i = 8; $i < sizeof($salida); $i++) {
-        //         if ($cont === 1) {
-        //             $tipoRet = $salida[$i];
-        //         } elseif ($cont === 2) {
-        //             $nit = $salida[$i];
-        //         } elseif ($cont === 3) {
-        //             $dv = $salida[$i];
-        //         } elseif ($cont === 4) {
-        //             $razonSocial = $salida[$i];
-        //         } elseif ($cont === 5) {
-        //             $nombreConcepto = $salida[$i];
-        //         } elseif ($cont === 6) {
-        //             $base = $salida[$i];
-        //         } elseif ($cont === 7) {
-        //             $valorRetenido = $salida[$i];
-        //         } elseif ($cont === 8) {
-        //             $porcentaje = $salida[$i];
-        //             array_push(
-        //                 $toSave,
-        //                 array(
-        //                     "tipoRetencion" => $tipoRet,
-        //                     "nit" => $nit,
-        //                     "razonSocial" => $razonSocial,
-        //                     "nombreConcepto" => $nombreConcepto,
-        //                     "base" => $base,
-        //                     "valorRetenido" => $valorRetenido,
-        //                     "porcentaje" => $porcentaje
-        //                 )
-        //             );
-        //             $cont = -1;
-        //         }
-        //     }
-
-        // }elseif($dataType === 2){
-
-        //     for ($i = 9; $i < sizeof($salida); $i++) {
-        //         if ($cont === 1) {
-        //             $tipoRet = $salida[$i];
-        //         } elseif ($cont === 2) {
-        //             $nit = $salida[$i];
-        //         } elseif ($cont === 3) {
-        //             $dv = $salida[$i];
-        //         } elseif ($cont === 4) {
-        //             $razonSocial = $salida[$i];
-        //         } elseif ($cont === 5) {
-        //             $nombreConcepto = $salida[$i];
-        //         } elseif ($cont === 6) {
-        //             $base = $salida[$i];
-        //         } elseif ($cont === 7) {
-        //             $valorRetenido = $salida[$i];
-        //         } elseif ($cont === 8) {
-        //             $porcentaje = $salida[$i];
-        //         }elseif($cont === 9){
-        //             array_push(
-        //                 $toSave,
-        //                 array(
-        //                     "tipoRetencion" => $tipoRet,
-        //                     "nit" => $nit,
-        //                     "razonSocial" => $razonSocial,
-        //                     "nombreConcepto" => $nombreConcepto,
-        //                     "base" => $base,
-        //                     "valorRetenido" => $valorRetenido,
-        //                     "porcentaje" => $porcentaje
-        //                 )
-        //             );
-        //             $cont = -1;
-        //         }
-                    
-                    
-        //     }
-
-        // }
-
-        
-
+      
         for ($i = 8; $i < sizeof($salida); $i++) {
 
             if ($dataType === 1) {
@@ -373,6 +283,11 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                     $razonSocial = $salida[$i];
                 } elseif ($cont === 4) {
                     $nombreConcepto = $salida[$i];
+                    $arrCiudad=explode(" ", $salida[$i]);
+                    $arrCiudad=str_replace(":","",$arrCiudad);
+                    if(sizeof($arrCiudad)>0&&$arrCiudad!==null){
+                        $ciudadFormNomConcepto=count($arrCiudad)>1?$arrCiudad[1]:$arrCiudad[0];
+                    }                    
                 } elseif ($cont === 5) {
                     $base = $salida[$i];
                 } elseif ($cont === 6) {
@@ -389,7 +304,8 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                             "nombreConcepto" => $nombreConcepto,
                             "base" => $base,
                             "valorRetenido" => $valorRetenido,
-                            "porcentaje" => $porcentaje
+                            "porcentaje" => $porcentaje,
+                            "ciudadFormNomConcepto"=>  $ciudadFormNomConcepto
                         )
                     );
                     $cont = 0;
@@ -407,6 +323,11 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                     $razonSocial = $salida[$i];
                 } elseif ($cont === 4) {
                     $nombreConcepto = $salida[$i];
+                    $arrCiudad=explode(" ", $salida[$i]);
+                    $arrCiudad=str_replace(":","",$arrCiudad);
+                    if(sizeof($arrCiudad)>0&&$arrCiudad!==null){
+                        $ciudadFormNomConcepto=count($arrCiudad)>1?$arrCiudad[1]:$arrCiudad[0];
+                    }
                 } elseif ($cont === 5) {
                     $base = $salida[$i];
                 } elseif ($cont === 6) {
@@ -423,7 +344,8 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                             "nombreConcepto" => $nombreConcepto,
                             "base" => $base,
                             "valorRetenido" => $valorRetenido,
-                            "porcentaje" => $porcentaje
+                            "porcentaje" => $porcentaje,
+                            "ciudadFormNomConcepto"=>  $ciudadFormNomConcepto
                         )
                     );
                     $cont = 0;
@@ -450,17 +372,24 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                  * datayType {1=ICA,2=IVA,3=Otros}
                  */
                 $logger->info("save: " . json_encode($save, JSON_INVALID_UTF8_IGNORE) . " " . sizeof($save) . " iterator: " . $iterator);
-                $objForSave = saveArray($workArray, $peridoSince, $periodUntil, $conn, $dataType, $year_tribute);
-                array_push($rowsSave,$objForSave);
+                $item=new RowItem();
+                array_push($objForSave , saveArray($workArray, $peridoSince, $periodUntil, $conn, $dataType, $year_tribute));
+                //$objForSave = saveArray($workArray, $peridoSince, $periodUntil, $conn, $dataType, $year_tribute);
+                
+             
+                 //array_push($rowsSave,$objForSave);
                 // }
                 $iterator += $iterator + 1;
             }
 
+           
+            
             echo json_encode(
-                array("creation"=>$outArry,
+                array(
+                    "creation"=>$outArry,
                     "code" => 200,
-                    "rows_proocessed" => $rowsSave,
-                    "num_rows_proocessed" => count($rowsSave)
+                    "rows_proocessed" => $objForSave,
+                    "num_rows_proocessed" => count($objForSave)
                 ),
                 JSON_INVALID_UTF8_IGNORE
             );
@@ -495,7 +424,8 @@ function saveArray($arr, $ini, $end, $conn, $dataType, $year_tribute)
                     year_tribute =:year_tribute,
                     range_ini=:range_ini,
                     range_end=:range_end,
-                    dataType=:dataType                  
+                    dataType=:dataType,
+                    city=:city                  
                     ";
 
     $stmt = $conn->prepare($query);
@@ -511,22 +441,40 @@ function saveArray($arr, $ini, $end, $conn, $dataType, $year_tribute)
     $stmt->bindParam(':year_tribute', $year_tribute);
     $stmt->bindParam(':range_ini', $ini);
     $stmt->bindParam(':range_end', $end);
+    $ciudad=str_replace("\u00e1", "´",$arr["ciudadFormNomConcepto"]);
+    $stmt->bindParam(':city',$ciudad);
 
     //PDO::PARAM_INT
     $execute = $stmt->execute();
     $last = $conn->lastInsertId();
-
+    $it=new RowItem();
     if ($execute > 0) {
         //http_response_code(200);
+        
+        $it->setCode(200);
+        $it->setNit($arr["nit"]);
+        $it->setNombreConcepto($arr["nombreConcepto"]);
+        $it->setRazonSocial($arr["razonSocial"]);
+        $it->setId_certificate_data($last);
+
+        $item[]=[
+            "code:"=>200 ,
+            "id_certificate_data" => $last,
+            "nit" => $arr["nit"],
+            "razonSocial" => $arr["razonSocial"],
+            "nombreConcepto" => $arr["nombreConcepto"],
+           "ciudadFormNomConcepto"=>   str_replace("\u00e1", "´",$arr["ciudadFormNomConcepto"])
+        ];
         array_push(
             $newRow,
-            array(
-                "code" => 200,
-                "id_certificate_data" => $last,
-                "nit" => $arr["nit"],
-                "razonSocial" => $arr["razonSocial"],
-                "nombreConcepto" => $arr["nombreConcepto"]
-            )
+            // [
+            //     "code:"=>200 ,
+            //     "id_certificate_data" => $last,
+            //     "nit" => $arr["nit"],
+            //     "razonSocial" => $arr["razonSocial"],
+            //     "nombreConcepto" => $arr["nombreConcepto"]
+            // ]
+            $item
         );
         //echo json_encode(array("message" => "registro was successfully create."), JSON_INVALID_UTF8_IGNORE);
     } else {
@@ -535,7 +483,15 @@ function saveArray($arr, $ini, $end, $conn, $dataType, $year_tribute)
     }
 
     if (count($newRow) > 0) {
-        return $newRow;
+        return 
+        [
+                "code:"=>200 ,
+                "id_certificate_data" => $last,
+                "nit" => $arr["nit"],
+                "razonSocial" => $arr["razonSocial"],
+                "nombreConcepto" => $arr["nombreConcepto"],
+                "ciudadFormNomConcepto"=>   str_replace("\u00e1", "´",$arr["ciudadFormNomConcepto"])
+            ];
     } else {
         return array("code" => "401", "message" => "Registro no pudo ser insertado. [ Nit: " . $arr["nit"] . " Concepto: " . $arr["nombreConcepto"] . "]");
     }
@@ -595,7 +551,7 @@ function getCertificatesByOrg($conn, $idCertificate): array
 
 }
 
-function generateDocPdf($conn, $idCertificate)
+function generateDocPdf($conn, $idCertificate,$outPutNameFile)
 {
     $logger = new Logger('files-logger');
     $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
@@ -833,8 +789,8 @@ function generateDocPdf($conn, $idCertificate)
     //http_response_code(200);
     //$mpdf->OutputHttpDownload('download.pdf');
 
-    $outPutNameFile = "A" . time() . '.pdf';
-    $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
+    // $outPutNameFile = "A" . time() . '.pdf';
+     $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
     updateCertificate($conn, $idCertificate, $outPutNameFile);
 
     //$mpdf->Output();
@@ -856,7 +812,7 @@ function updateCertificate($conn, $idCertificate, $outPutNameFile)
 
 function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion,$sinceRange,$untilRange)
 {
-    echo $sinceRange,$untilRange;
+    //echo $sinceRange,$untilRange;
     $insertRow = 0;
     $certificatesData = [];
     $nombreCert = "";
@@ -1002,18 +958,22 @@ function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion,$since
 
             }
 
+             $outPutNameFile = "A" . time() . '.pdf';
+             $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
             if ($insertRow > 0) {
                 echo json_encode(
                     array(
                         "message" => "Cetificado creado con exito",
                         "code" => "200",
-                        "length" => $num . " " . $lastCertificateGen
+                        "length" => $num ,
+                        "last_id_insert"=>$lastCertificateGen,
+                        "certificacion_generate" =>$outPutNameFile
                     ),
                     JSON_INVALID_UTF8_IGNORE
                 );
             }
 
-            generateDocPdf($conn, $lastCertificateGen);
+            generateDocPdf($conn, $lastCertificateGen,$outPutNameFile);
             // }
 
 
@@ -1027,5 +987,80 @@ function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion,$since
     }
     // return "";
 }
+
+function getInfoPreBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion)
+{
+    $errors = array();
+    if ($nit == "" || $nit == null) {
+        array_push(
+            $errors,
+            array(
+                "message" => "Error: Field nit is required"
+            )
+        );
+    }
+    if ($tipo_retencion == "" || $tipo_retencion == null) {
+        array_push(
+            $errors,
+            array(
+                "message" => "Error: Field tipo_retencion is required"
+            )
+        );
+    }
+    if ($year == "" || $year == null) {
+        array_push(
+            $errors,
+            array(
+                "message" => "Error: Field year is required"
+            )
+        );
+    }
+    if ($idOrganizacion == "" || $idOrganizacion == null) {
+        array_push(
+            $errors,
+            array(
+                "message" => "Error: Field idOrganizacion is required"
+            )
+        );
+    }
+    if (count($errors) > 0) {
+        header("Status: 401 Not Found");
+        http_response_code(401);
+        echo json_encode(
+            array(
+                "status" => 401,
+                "message" => "Errors found in the request",
+                "error" => $errors
+            )
+        );
+    } else {
+        $querySelect='select 
+                        nit,
+                        dataType ,
+                        year_tribute ,
+                        count(id_certificate_data_ica) as cuantos, range_ini, range_end,city  
+                        from certificate_data 
+                        where dataType =:dataType
+                          and nit =:nit
+                          and year_tribute =:year_tribute 
+                        group by year_tribute ,range_ini, range_end ';
+        $stmt = $conn->prepare($querySelect);
+        $stmt->bindParam(':dataType', $tipo_retencion);
+        $stmt->bindParam(':nit', $nit);        
+        $stmt->bindParam(':year_tribute', $year);        
+        $stmt->execute();
+        $num = $stmt->rowCount();
+        if($num>0){
+            $row = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            http_response_code(200);
+            echo json_encode(
+                array("status"=>200, 
+                      "message" => "User was successfully updated. ",
+                      "result"=>$row
+                    ),JSON_INVALID_UTF8_IGNORE);
+          }
+    } 
+}
+
 
 ?>

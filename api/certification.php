@@ -104,7 +104,7 @@ function allCertificates($id_organization,$conn){
     where cg.organization_asociate =:organization_asociate 
     and cg.createat is not null 
     and cg.url_assoc_file !=""
-    order by cg.createat DESC  limit 8';
+    order by cg.id_certificados_generado DESC  limit 5';
 
     $stmt = $conn->prepare( $querySelect );
     $stmt->bindParam(':organization_asociate',$id_organization);

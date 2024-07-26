@@ -18,8 +18,6 @@ $databaseService = new DatabaseService();
 $databaseService->setConfig($configs);
 $conn = $databaseService->getConnection();
 
-
-
 $data = json_decode(file_get_contents("php://input"));
 
 $email = $data->email;
@@ -32,6 +30,7 @@ FROM '. $table_name . ' u
 inner join users_organizations uo ON  uo.id_user =u.id_user 
 inner join organizations o  ON o.id_organization=uo.id_organization 
 WHERE u.email  = ? LIMIT 1';
+
 
 
 $stmt = $conn->prepare( $query );
@@ -51,6 +50,23 @@ if($num > 0){
     $names=$row['first_name'];
     $lastnames=$row['last_name'];
     $nit=$row['nit'];
+
+    //echo $id;
+    $queryRols='select ru.id_rol_user ,ru.id_user , ru.id_rol, r.name_rol 
+                from rol_users ru
+                inner join rol r on r.id_rol = ru.id_rol
+                inner join users u on u.id_user = ru.id_user
+                where u.id_user =?';
+
+    $stmt = $conn->prepare( $queryRols );
+    $stmt->bindParam(1, $id);
+    $stmt->execute();
+    $numRols = $stmt->rowCount();
+    $rowRols=null;
+    //echo $numRols;
+    if( $numRols > 0){
+        $rowRols = $stmt->fetchAll(PDO::FETCH_ASSOC);        
+    }
 
     if(password_verify($password, $password2))
     {
@@ -93,7 +109,8 @@ if($num > 0){
                 "lastname" => $lastnames,
                 "nit"=>$nit,
                 "idUser"=>$id,
-                "code"=>200
+                "code"=>200,
+                "rols"=>$rowRols
             ));
     }
     else{
