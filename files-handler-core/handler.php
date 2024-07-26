@@ -372,7 +372,7 @@ function readFileXlsx($nameFile, $conn, $whitOutSave,$outArry)
                  * datayType {1=ICA,2=IVA,3=Otros}
                  */
                 $logger->info("save: " . json_encode($save, JSON_INVALID_UTF8_IGNORE) . " " . sizeof($save) . " iterator: " . $iterator);
-                $item=new RowItem();
+                //$item=new RowItem();
                 array_push($objForSave , saveArray($workArray, $peridoSince, $periodUntil, $conn, $dataType, $year_tribute));
                 //$objForSave = saveArray($workArray, $peridoSince, $periodUntil, $conn, $dataType, $year_tribute);
                 
@@ -447,15 +447,15 @@ function saveArray($arr, $ini, $end, $conn, $dataType, $year_tribute)
     //PDO::PARAM_INT
     $execute = $stmt->execute();
     $last = $conn->lastInsertId();
-    $it=new RowItem();
+    //$it=new RowItem();
     if ($execute > 0) {
         //http_response_code(200);
         
-        $it->setCode(200);
-        $it->setNit($arr["nit"]);
-        $it->setNombreConcepto($arr["nombreConcepto"]);
-        $it->setRazonSocial($arr["razonSocial"]);
-        $it->setId_certificate_data($last);
+        // $it->setCode(200);
+        // $it->setNit($arr["nit"]);
+        // $it->setNombreConcepto($arr["nombreConcepto"]);
+        // $it->setRazonSocial($arr["razonSocial"]);
+        // $it->setId_certificate_data($last);
 
         $item[]=[
             "code:"=>200 ,
