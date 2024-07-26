@@ -551,7 +551,7 @@ function getCertificatesByOrg($conn, $idCertificate): array
 
 }
 
-function generateDocPdf($conn, $idCertificate)
+function generateDocPdf($conn, $idCertificate,$outPutNameFile)
 {
     $logger = new Logger('files-logger');
     $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
@@ -789,8 +789,8 @@ function generateDocPdf($conn, $idCertificate)
     //http_response_code(200);
     //$mpdf->OutputHttpDownload('download.pdf');
 
-    $outPutNameFile = "A" . time() . '.pdf';
-    $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
+    // $outPutNameFile = "A" . time() . '.pdf';
+     $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
     updateCertificate($conn, $idCertificate, $outPutNameFile);
 
     //$mpdf->Output();
@@ -958,18 +958,22 @@ function generarBase($conn, $nit, $tipo_retencion, $year, $idOrganizacion,$since
 
             }
 
+             $outPutNameFile = "A" . time() . '.pdf';
+             $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
             if ($insertRow > 0) {
                 echo json_encode(
                     array(
                         "message" => "Cetificado creado con exito",
                         "code" => "200",
-                        "length" => $num . " " . $lastCertificateGen
+                        "length" => $num ,
+                        "last_id_insert"=>$lastCertificateGen,
+                        "certificacion_generate" =>$outPutNameFile
                     ),
                     JSON_INVALID_UTF8_IGNORE
                 );
             }
 
-            generateDocPdf($conn, $lastCertificateGen);
+            generateDocPdf($conn, $lastCertificateGen,$outPutNameFile);
             // }
 
 

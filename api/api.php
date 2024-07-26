@@ -117,7 +117,8 @@ if ($method === 'GET') {
         $namesUser = isset($data->namesUser) ? $data->namesUser : "";
         $lastNamesuser = isset($data->lastNamesuser) ? $data->lastNamesuser : "";
         $passwordUser = isset($data->passwordUser) ? $data->passwordUser : "";
-        updateUser($conn, $idUser, $namesUser, $lastNamesuser, $passwordUser);
+        //updateUser($conn, $idUser, $namesUser, $lastNamesuser, $passwordUser);
+        changePassword($conn, $passwordUser);
     }
 
 } else {

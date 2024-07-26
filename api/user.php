@@ -98,6 +98,42 @@ function updateUser($conn,$idUser,$namesUser,$lastNamesuser,$passwordUser){
  }
 
 }
+function changePassword($conn,$passwordUser){
+    $errors=array();
+    if($passwordUser==""||$passwordUser==null){
+      array_push($errors,array(        
+          "message"=>"Error: Field passwordUser is required"        
+      ));
+    }
+  
+   if(count($errors)>0){
+      header("Status: 401 Not Found");
+      http_response_code(401);
+      echo json_encode(
+              array(
+                  "status"=>401,
+                  "message"=>"Errors found in the request",
+                  "error"=>$errors)
+              );
+   }else{
+      $queryUpdate='update users set password=:passwordUser
+                      where id_user =:idUser ';
+  
+      $stmt = $conn->prepare( $queryUpdate );
+  
+      $hash=password_hash($passwordUser, PASSWORD_BCRYPT);
+      $stmt->bindParam(':passwordUser', $hash);  
+      
+      $insert=$stmt->execute();
+      if($insert){
+          http_response_code(200);
+          echo json_encode(
+              array("status"=>200, 
+                    "message" => "User was successfully updated. "),JSON_INVALID_UTF8_IGNORE);
+        }
+   }
+  
+  }
 
 function getRolsByIdUser($conn, $idUser)
 {

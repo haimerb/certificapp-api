@@ -314,7 +314,9 @@ if ($method === 'GET') {
     // }
 
     if ($pathInfo === '/files/generarPdf') {
-        generateDocPdf($conn, $idCertificate);
+        $outPutNameFile = "A" . time() . '.pdf';
+        $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
+        generateDocPdf($conn, $idCertificate,$outPutNameFile);
     }
 
     if ($pathInfo === '/files') {
