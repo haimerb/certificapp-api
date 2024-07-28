@@ -1,15 +1,14 @@
 <?php
 /**
- * @author haimerb <hbarbetti.ing@gmail.com>
- * @see https://github.com/haimerb* 
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
+ * @see https://github.com/haimerb
  **/
 require "../vendor/autoload.php";
 include_once '../files-handler-core/templates/file.php';
 include_once '../core/model/rowItem.php';
 
 include_once '../core/model/certificate.php';
-// include_once './config/database.php';
-// $configs=include('./config/config.php');
+
 
 use Mpdf\HTMLParserMode;
 use PhpOffice\PhpSpreadsheet\IOFactory;

@@ -1,7 +1,8 @@
 <?php
 /**
  * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
- */
+ * @see https://github.com/haimerb
+ **/
 require "../vendor/autoload.php";
 include_once '../files-handler-core/handler.php';
 
@@ -53,11 +54,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 function downloaadFile($file)
 {   
-    //$env=false;
     $data = json_decode(file_get_contents("php://input"));
     $env=isset($data->env)?$data->env:false;
-
-    //header("Content-Type:application/json; charset=UTF-8");
     $prodEnv="https://www.ti-soluciones.co/certificapp/apext-api";
     $DevEnv="http://localhost:8000";
     $url ='';
@@ -99,11 +97,6 @@ if ($method === 'GET') {
     
 } elseif ($method === 'POST') {
     
-    // if ($pathInfo === '/files/generateBase') {
-    //     echo "ALGO!! ";
-    //     generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion);                
-    // }
-
     if ($pathInfo === '/files/generarPdf') {
         $outPutNameFile = "A" . time() . '.pdf';
         $outPutDirFile = 'tmp/mpdf/outfiles/' . $outPutNameFile;
