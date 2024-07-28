@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
+ */
 error_reporting(E_ALL);
 
 $configs=include('./config/config.php');

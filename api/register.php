@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
+ */
 $configs=include('./config/config.php');
 include_once './config/database.php';
 
@@ -40,18 +43,14 @@ $stmt->bindParam(':lastname', $lastName);
 $stmt->bindParam(':email', $email);
 
 $password_hash = password_hash($password, PASSWORD_BCRYPT);
-
 $stmt->bindParam(':password', $password_hash);
 
-
 if($stmt->execute()){
-
     http_response_code(200);
     echo json_encode(array("message" => "User was successfully registered."));
 }
 else{
     http_response_code(400);
-
     echo json_encode(array("message" => "Unable to register the user."));
 }
 ?>

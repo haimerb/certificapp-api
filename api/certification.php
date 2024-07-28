@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
+ */
 include_once './config/database.php';
 require "../vendor/autoload.php";
 $configs=include('./config/config.php');
@@ -34,58 +37,8 @@ $password = '';
 $databaseService = new DatabaseService();
 $databaseService->setConfig($configs);
 $conn = $databaseService->getConnection();
-
 $data = json_decode(file_get_contents("php://input",false,$contexto));
-//$id_user=$data->user;
 $id_organization=isset($data->idOrganization)?$data->idOrganization:(isset($_REQUEST['idOrganization'])?$_REQUEST['idOrganization']:"");
-
-// $table_name = 'certificados_generados';
-// $table_name_type_certificates = 'type_certificates';
-
-
-// $querySelect='select  
-//                     cg.id_certificados_generado,
-//                     cg.tipo_certificado,
-//                     id_certificados_generado,
-//                     cg.nombre, 
-//                     cg.organization_asociate, 
-//                     o.name,
-//                     o.nit,
-//                     o.dv,
-//                     cg.url_assoc_file
-// from '.$table_name.' cg
-// inner join organizations o ON o.id_organization =cg.organization_asociate 
-// where cg.organization_asociate =:organization_asociate ';
-
-
-// function usersById($id_user,$querySelect,$conn){
-//     $stmt = $conn->prepare( $querySelect );
-//     $stmt->bindParam(1, $id_user);
-//     $stmt->execute();
-//     $num = $stmt->rowCount();
-
-//     if($num > 0){
-//         $row = $stmt->fetch(PDO::FETCH_ASSOC);
-//         $id = $row['id'];
-//         $firstname = $row['first_name'];
-//         $lastname = $row['last_name'];
-
-//             http_response_code(200);
-//             $headers = [
-//                 'x-forwarded-for' => 'www.google.com'
-//             ];
-    
-//             echo json_encode(
-//                 array(
-//                     "id" => $id,
-//                     "firstname" => $firstname,
-//                     "lastname" => $lastname                   
-//                 ));        
-//     }else{    
-//         http_response_code(401);
-//         echo json_encode(array("message" => "QueSQL failed."));
-//     }
-// }
 
 function allCertificates($id_organization,$conn){
     
