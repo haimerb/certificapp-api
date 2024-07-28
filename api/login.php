@@ -1,4 +1,7 @@
 <?php
+/**
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
+ */
 $configs=include('./config/config.php');
 include_once './config/database.php';
 require "../vendor/autoload.php";

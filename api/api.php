@@ -1,6 +1,6 @@
 <?php
 /**
- * @author hbarb <email>
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
  */
 include_once './config/database.php';
 require "../vendor/autoload.php";
@@ -30,28 +30,15 @@ $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : "" ;
 
 $sinceRange=isset($data->rangeSince) ? $data->rangeSince : "" ;
 $untilRange=isset($data->rangeUntil) ? $data->rangeUntil : "" ;
-
-
-
-
-//echo $sinceRange,$untilRange;
-
 /**
- * Set Header
+ * Set Header 
  */
-// header("Access-Control-Allow-Origin: http://localhost:4200");
-// header("Access-Control-Allow-Methods: POST GET PUT");
-// header("Access-Control-Max-Age: 0");
-// //header("Content-Type: application/json; charset=UTF-8");
-// ///header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-        header('Access-Control-Allow-Origin: *');
-        header("Allow: GET, POST, PUT, DELETE, UPDATE, OPTIONS");
-        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, UPDATE, OPTIONS");
-        header("Content-Type: application/json; charset=utf-8");
-        header("Accept: application/json; charset=UTF-8");
-        header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
-
+header('Access-Control-Allow-Origin: *');
+header("Allow: GET, POST, PUT, DELETE, UPDATE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, UPDATE, OPTIONS");
+header("Content-Type: application/json; charset=utf-8");
+header("Accept: application/json; charset=UTF-8");
+header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
 /**
  * http petitions
  */
@@ -60,7 +47,6 @@ $logger->info("METHOD: " . $method);
  * Get
  */
 if ($method === 'GET') {
-
     if ($pathInfo === '/user/rol') {
         header("Content-Type: application/json; charset=utf-8");
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -77,14 +63,12 @@ if ($method === 'GET') {
         $tipo_retencion = isset($data->tipo_retencion) ? $data->tipo_retencion :$_REQUEST['tipo_retencion'];
         $year_tribute = isset($data->year_tribute) ? $data->year_tribute :$_REQUEST['year_tribute'];
         $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : $_REQUEST['idOrganizacion'];
-        getInfoPreBase($conn, $nit, $tipo_retencion, $year_tribute, $idOrganizacion);
-        //generarBase($conn, $nit, $tipo_retencion, $year_tribute, $idOrganizacion, $sinceRange, $untilRange);
+        getInfoPreBase($conn, $nit, $tipo_retencion, $year_tribute, $idOrganizacion);        
     }
-    /**
-     * POST
-     */
+/**
+ * POST
+ */
 } elseif ($method === 'POST') {
-
     if ($pathInfo === '/certificate/base') {
         header("Content-Type: application/json; charset=utf-8");
         header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
@@ -105,19 +89,16 @@ if ($method === 'GET') {
         http_response_code(200);
         readFileXlsx($nameFile, $conn, true, array());
     }
-    /**
-     * PUT 
-     */
+/**
+ * PUT 
+ */
 } elseif ($method === 'PUT') {
-
     if ($pathInfo === '/user/update') {
         $data = json_decode(file_get_contents("php://input"));
-
         $idUser = isset($data->idUser) ? $data->idUser : "";
         $namesUser = isset($data->namesUser) ? $data->namesUser : "";
         $lastNamesuser = isset($data->lastNamesuser) ? $data->lastNamesuser : "";
         $passwordUser = isset($data->passwordUser) ? $data->passwordUser : "";
-        //updateUser($conn, $idUser, $namesUser, $lastNamesuser, $passwordUser);
         changePassword($conn, $passwordUser);
     }
 

@@ -1,6 +1,6 @@
 <?php
 /**
- *  @author Haymer Barbetti <email>
+ * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
  */
 include_once './config/database.php';
 require "../vendor/autoload.php";
