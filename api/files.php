@@ -144,10 +144,7 @@ if ($method === 'GET') {
         $tipo_retencion = isset($data->tipo_retencion) ? $data->tipo_retencion : "";
         $year_tribute = isset($data->year_tribute) ? $data->year_tribute : "";
         $idOrganizacion = isset($data->idOrganizacion) ? $data->idOrganizacion : (isset($_REQUEST['idOrganizacion'])?$_REQUEST['idOrganizacion']:"") ;
-
-
-            //echo "ALGO!! ";
-            generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion,$sinceRange,$untilRange);
+        generarBase($conn, $nit, $tipo_retencion, $year_tribute,$idOrganizacion,$sinceRange,$untilRange);
     }
 
 } elseif ($method === 'PUT') {
