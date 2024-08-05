@@ -6,6 +6,13 @@ $configs=include('./config/config.php');
 include_once './config/database.php';
 require "../vendor/autoload.php";
 use \Firebase\JWT\JWT;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$logger = new Logger('files-logger');
+$logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
+
+error_reporting(E_ALL);
 
 header("Access-Control-Allow-Origin: http://localhost:4200");
 header("Content-Type: application/json; charset=UTF-8");
@@ -34,13 +41,14 @@ inner join users_organizations uo ON  uo.id_user =u.id_user
 inner join organizations o  ON o.id_organization=uo.id_organization 
 WHERE u.email  = ? LIMIT 1';
 
-
+$logger->info(" LOGIN: ".$email.' Password: ' .$password);
 
 $stmt = $conn->prepare( $query );
 $stmt->bindParam(1, $email);
 $stmt->execute();
 $num = $stmt->rowCount();
 
+$logger->info(" LOGIN: ".$num);
 if($num > 0){
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $id = $row['id_user'];
@@ -53,7 +61,7 @@ if($num > 0){
     $names=$row['first_name'];
     $lastnames=$row['last_name'];
     $nit=$row['nit'];
-
+    $logger->info(" LOGIN: ".$id);
     //echo $id;
     $queryRols='select ru.id_rol_user ,ru.id_user , ru.id_rol, r.name_rol 
                 from rol_users ru
@@ -113,8 +121,8 @@ if($num > 0){
                 "nit"=>$nit,
                 "idUser"=>$id,
                 "code"=>200,
-                "rols"=>$rowRols
-            ));
+                "rols"=>isset($rowRols)?$rowRols:""
+            ),JSON_INVALID_UTF8_IGNORE);
     }
     else{
         echo json_encode(array("message" => "Login failed.", "password" => $password,

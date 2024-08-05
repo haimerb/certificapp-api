@@ -1,7 +1,8 @@
 <?php
 /**
  * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
- */
+ * @see https://github.com/haimerb
+ **/
 include_once './config/database.php';
 require "../vendor/autoload.php";
 include_once '../files-handler-core/handler.php';
