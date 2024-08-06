@@ -609,9 +609,15 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
     
     $valTotalCompraIca=0;
 
+    $anioGravable=$certificatesData[0]["anio_gravable"];
+    $nitBase=NIT_BASE;
+    $dirBase=DIR_BASE;
+    $razonSocialBase=RAZON_SOCIAL_BASE;
+    $telBase=TEL_BASE;
+
     for ($i = 0; $i < count($certificatesData); $i++) {
         if (strpos($certificatesData[$i]["concepto"], $regxServiciosICA) !== false) {
-            $servicios .= '<td>$ ' . $certificatesData[$i]["base_retencion"] . '</td>';
+            $servicios .= '<td>$ ' . number_format($certificatesData[$i]["base_retencion"],0, '.','.') . '</td>';
             $valor_ret_servicios .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
             $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
             $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
@@ -623,7 +629,7 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
         }
 
         if (strpos($certificatesData[$i]["concepto"], $regxCompraICA) !== false) {
-            $compras .= '<td>$ ' . $certificatesData[$i]["base_retencion"] . '</td>';
+            $compras .= '<td>$ ' . number_format($certificatesData[$i]["base_retencion"],0, '.','.')   . '</td>';
             $valor_ret_compra .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
             $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
             $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
@@ -767,10 +773,10 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
                                 IDENTIFICACIÓN DEL RETENEDOR
                             </h2>                
                         </div>
-                        <p> &nbsp; &nbsp;Razón Social: ..........................................: APEX TOOL GROUP S.A.S</p>
-                        <p> &nbsp; &nbsp;NIT: ..........................................................: 00311300</p>
-                        <p> &nbsp; &nbsp;Dirección: .................................................: AVCL 26 69 D 91 TO 1 OF 406 BOGOTA</p>
-                        <p> &nbsp; &nbsp;Año Gravable: ..........................................: 2023</p>
+                        <p> &nbsp; &nbsp;Razón Social: ..........................................: '.$razonSocialBase.'</p>
+                        <p> &nbsp; &nbsp;NIT: ..........................................................: '.$nitBase.'</p>
+                        <p> &nbsp; &nbsp;Dirección: .................................................: '.$dirBase.'</p>
+                        <p> &nbsp; &nbsp;Año Gravable: ..........................................: '.$anioGravable.'</p>
                     </div>
                     <div class="section middle">
                         <div class="section-title middle">
