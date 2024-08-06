@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @author Haymer Barbetti <hbarbetti.ing@icloud.com>
  * @see https://github.com/haimerb
@@ -7,9 +6,7 @@
 require "../vendor/autoload.php";
 include_once '../files-handler-core/templates/file.php';
 include_once '../core/model/rowItem.php';
-
 include_once '../core/model/certificate.php';
-
 
 use Mpdf\HTMLParserMode;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -31,7 +28,6 @@ function uploadFile($file_name, $file_type, $file_size, $file_tmp_name, $file_er
 
     $dir_subida = "../api/tmp/";
     $fichero_subido = $dir_subida . basename($file_name);
-
 
     if (move_uploaded_file($file_tmp_name, $fichero_subido)) {
         $logger->info("El fichero es válido y se subió con éxito. Archivo: " . $file_name);
@@ -228,22 +224,9 @@ function readFileXlsx($nameFile, $conn, $whitOutSave, $outArry)
         $rowCount = $hoja->getHighestRow();
 
         foreach ($hoja->getRowIterator(1, $rowCount + 1) as $fila) {
-
             foreach ($fila->getCellIterator('A', 'H') as $celda) {
-
-
-                //$logger->info("getCalculatedValue: " . $celda->getCalculatedValue());
                 array_push($salida, $celda->getCalculatedValue());
-
-                //Aqui se graba la data en la base de datos
-                // if($whitOutSave!==null&&$whitOutSave===true) {
-
-                // }
-
-                //echo $celda->getCalculatedValue() . " \n "; // Imprime el contenido de la celda
-            }
-            //echo "<br>";
-            //print_r($salida);
+            }            
         }
 
         $toSave = array();
@@ -446,14 +429,6 @@ function saveArray($arr, $ini, $end, $conn, $dataType, $year_tribute)
             $hasTotal=true;
         }
         
-        //http_response_code(200);
-
-        // $it->setCode(200);
-        // $it->setNit($arr["nit"]);
-        // $it->setNombreConcepto($arr["nombreConcepto"]);
-        // $it->setRazonSocial($arr["razonSocial"]);
-        // $it->setId_certificate_data($last);
-
         $item[] = [
             "code:" => 200,
             "id_certificate_data" => $last,
@@ -493,13 +468,41 @@ function getCertificatesByOrg($conn, $idCertificate): array
     $logger = new Logger('files-logger');
     $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
 
-    $query = 'select
-                *
-            from
-                certificados_generados cg
-            inner join certificates_x_values cxv on cxv.id_certificados_generado = cg.id_certificados_generado
-            inner join values_certificates vc on vc.id_values = cxv.id_values
-            where cg.id_certificados_generado =?;
+    // $query = 'select
+    //             *
+    //         from
+    //             certificados_generados cg
+    //         inner join certificates_x_values cxv on cxv.id_certificados_generado = cg.id_certificados_generado
+    //         inner join values_certificates vc on vc.id_values = cxv.id_values
+    //         where cg.id_certificados_generado =?;
+    //          ';
+
+
+             $query='
+             SELECT cg.*, 
+                vc.id_values,
+                vc.concepto,
+                CAST(
+                (
+                    SELECT  
+                        vc_into.base_retencion  
+                    FROM values_certificates vc_into
+                    WHERE vc_into.id_values =vc.id_values 
+                ) AS DECIMAL(10,2) ) AS base_retencion,
+                vc.valor_retenido,       
+                CAST(
+                (
+                    SELECT  
+                        vc_into.total_val_ret  
+                    FROM values_certificates vc_into
+                    WHERE vc_into.id_values =vc.id_values 
+                ) AS DECIMAL(10,2) 
+                ) AS total_val_ret,
+                cxv.*
+            FROM certificados_generados cg
+            INNER JOIN  certificates_x_values cxv on cxv.id_certificados_generado = cg.id_certificados_generado
+            INNER  JOIN  values_certificates vc on vc.id_values = cxv.id_values
+            WHERE  cg.id_certificados_generado =?;
              ';
 
 //             $query='SELECT  
@@ -553,7 +556,8 @@ function getCertificatesByOrg($conn, $idCertificate): array
                     "id_certificate_value" => $row[$i]["id_certificate_value"],
                     "id_values" => $row[$i]["id_values"],
                     "concepto" => $row[$i]["concepto"],
-                    "base_retencion" => number_format( $row[$i]["base_retencion"],0,',','.' ),
+                    "base_retencion" =>  $row[$i]["base_retencion"],
+                    //"base_retencion" => number_format(   (number_format( $row[$i]["base_retencion"],0,',','.' )*1000),0,',','.'),                    
                     "valor_retenido" => number_format( $row[$i]["valor_retenido"],0,',','.' ),
                     "total_val_retenido" => number_format(   (number_format( $row[$i]["total_val_ret"],0,',','.' )*1000),0,',','.'),
                 )
@@ -597,58 +601,31 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
         $certificatType="CERTIFICADO DE RETENCIÓN SOBRE IVA";
     }else if($certificatesData[0]["tipo_certificado"]==3){
         $certificatType="CERTIFICADO DE INDUSTRIA Y COMERCIO";
+    }else{
+        $certificatType="CERTIFICADO";
     }
     
-     $valTotalReteneidoIca=0;
-    // $valTotalServicioRetIca=0;
-    $totalBaseRetICA=0;
+    $valTotalReteneidoIca=0;
+    $valTotalBaseRetenciontICA=0;
 
-     $valTotalCompraIca=0;
-    // $valTotalCompraRetIca=0;
-
-    // $valTotalServicoIva=0;
-    // $valTotalMErcanciaIva=0;
+    $valTotalReteneidoIVA=0;
+    $valTotalBaseRetenciontIVA=0;
+    
+    $valTotalCompraIca=0;
 
     for ($i = 0; $i < count($certificatesData); $i++) {
         if (strpos($certificatesData[$i]["concepto"], $regxServiciosICA) !== false) {
             $servicios .= '<td>$ ' . $certificatesData[$i]["base_retencion"] . '</td>';
-
-
-            //$valor_ret_servicios .= '<td>$ ' . $certificatesData[$i]["valor_retenido"] . '</td>';
             $valor_ret_servicios .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
-
-            //$logger->info($i." INICIAL: valTotalServicioIca ".$certificatesData[$i]["base_retencion"]);
-            
-            //-$valTotalServicioIca=(float)number_format((float)$certificatesData[$i]["base_retencion"],0,',','.');
-            //array_push($valTotalServicioIca,$certificatesData[$i]["base_retencion"]);
-            // $valTotalCompraRetIca+=number_format($certificatesData[$i]["valor_retenido"] ,0,',','.');
-
-            //$valTotalReteneidoIca+=number_format(  ( number_format($certificatesData[$i]["total_val_retenido"],0,',','.') )  ,0,',','.');
-            $valTotalReteneidoIca+=  number_format(
-                                                 $certificatesData[$i]["total_val_retenido"]*1000    
-                                                ,0,',','.') ;
-
-            //$totalBaseRetICA+= number_format($certificatesData[$i]["base_retencion"],0,',','.' );
+            $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
+            $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
         }
-        
-        //$logger->info($i." valTotalServicioIca ".json_encode($valTotalServicioIca,JSON_INVALID_UTF8_SUBSTITUTE));
-        //$valTotalServicioIca+=(float)$valTotalServicioIca;
 
         if (strpos($certificatesData[$i]["concepto"], $regxCompraICA) !== false) {
             $compras .= '<td>$ ' . $certificatesData[$i]["base_retencion"] . '</td>';
-            //$valor_ret_compra .= '<td>$ ' . $certificatesData[$i]["valor_retenido"] . '</td>';
             $valor_ret_compra .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
-
-            // $valTotalCompraIca+=number_format($certificatesData[$i]["base_retencion"],0,',','.');
-            // $valTotalCompraRetIca+=number_format($certificatesData[$i]["valor_retenido"] ,0,',','.');
-            //$valTotalCompraIca+=floatval($certificatesData[$i]["total_val_retenido"]);
-            
-            //$valTotalReteneidoIca+=number_format(  ( number_format($certificatesData[$i]["total_val_retenido"],0,',','.') )  ,0,',','.');
-            $valTotalReteneidoIca+=  number_format(
-                $certificatesData[$i]["total_val_retenido"]*1000    
-               ,0,',','.') ;
-
-            //$totalBaseRetICA+= number_format($certificatesData[$i]["base_retencion"],0,',','.' );
+            $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
+            $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
         }
 
         if (strpos($certificatesData[$i]["concepto"], $regxServiciosIVA) !== false) {
@@ -661,20 +638,9 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
             $valor_ret_compra .= '<td>$ ' . $certificatesData[$i]["valor_retenido"] . '</td>';
         }
     }
+    
     $valTotalReteneidoIca=number_format($valTotalReteneidoIca*1000, 0, '.','.');
-    //$logger->info("FINAL: valTotalServicioIca ".json_encode($valTotalServicioIca,JSON_INVALID_UTF8_SUBSTITUTE));
-
-    // $suma=0.0;
-    // foreach ($valTotalServicioIca as $s){
-    //     $suma=$s;
-    //     echo number_format( $s,0,',','.' );        
-    // }
-    
-
-    // echo (float)array_sum($valTotalServicioIca);
-    // $suma=array_sum($valTotalServicioIca);
-    // $logger->info("SUMA: ".$suma);
-    
+    $valTotalBaseRetenciontICA=number_format($valTotalBaseRetenciontICA,0, '.','.');
 
     $logger = new Logger('logger');
     $logger->pushHandler(new StreamHandler('../api/tmp/logs/pdf_logger.log', Logger::DEBUG));
@@ -821,18 +787,16 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
                             <td>SERVICIOS 4%</td>
                             <label>'. $servicios. '</label>
                             <label>'. $valor_ret_servicios.
-            '
-                            
-                        </tr>
-                        <tr>
+                        '</tr>
+                         <tr>
                             <td>COMPRAS 2,5%</td>$ '
-            . $compras
-            . $valor_ret_compra
-            . '
+                            . $compras
+                            . $valor_ret_compra
+                            . '
                         </tr>
                         <tr>
                             <td>Total</td>
-                            <td> $ '.$totalBaseRetICA.'</td>
+                            <td> $ '.$valTotalBaseRetenciontICA.'</td>
                             <td> $ '.$valTotalReteneidoIca.'</td>
                         </tr>
 
