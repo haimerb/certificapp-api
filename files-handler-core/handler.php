@@ -167,12 +167,6 @@ function getFromFileYearTribute($nameFile, $indexSheet)
         );
 }
 
-function readIca()
-{
-    $logger = new Logger('files-logger');
-    $logger->pushHandler(new StreamHandler('./tmp/logs/log.log', Logger::DEBUG));
-}
-
 function readFileXlsx($nameFile, $conn, $whitOutSave, $outArry)
 {
     $objForSave = array();
@@ -588,7 +582,9 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
 
     $razonSocialRet = $certificatesData[0]["ret_razon_social"];
     $nitRet = $certificatesData[0]["ret_nit"];
-    $porcentRetServicios = 0;
+
+    $porcentRetServicios = "";
+    $porcentRetCompras = "";
 
     $valTotalServicioIca=0.0;
 
@@ -619,6 +615,11 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
             $valor_ret_servicios .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
             $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
             $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
+
+            $porcentRetServiciosArr = explode(" ",$certificatesData[$i]["concepto"]);
+            if(count($porcentRetServiciosArr)>0){
+                $porcentRetServicios.=$porcentRetServiciosArr[count($porcentRetServiciosArr)-1];
+            }
         }
 
         if (strpos($certificatesData[$i]["concepto"], $regxCompraICA) !== false) {
@@ -626,6 +627,11 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
             $valor_ret_compra .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
             $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
             $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
+
+            $porcentRetComprasArr = explode(" ",$certificatesData[$i]["concepto"]);
+            if(count($porcentRetComprasArr)>0){
+                $porcentRetCompras.=$porcentRetComprasArr[count($porcentRetComprasArr)-1];
+            }
         }
 
         if (strpos($certificatesData[$i]["concepto"], $regxServiciosIVA) !== false) {
@@ -784,12 +790,12 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
                         </tr>
 
                         <tr>
-                            <td>SERVICIOS 4%</td>
+                            <td>SERVICIOS '. $porcentRetServicios.' %</td>
                             <label>'. $servicios. '</label>
                             <label>'. $valor_ret_servicios.
                         '</tr>
                          <tr>
-                            <td>COMPRAS 2,5%</td>$ '
+                            <td>COMPRAS '.$porcentRetCompras.' %</td>$ '
                             . $compras
                             . $valor_ret_compra
                             . '
