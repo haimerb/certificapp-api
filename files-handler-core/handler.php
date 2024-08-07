@@ -775,7 +775,7 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
                         </div>
                         <p> &nbsp; &nbsp;Razón Social: ..........................................: '.$razonSocialBase.'</p>
                         <p> &nbsp; &nbsp;NIT: ..........................................................: '.$nitBase.'</p>
-                        <p> &nbsp; &nbsp;Dirección: .................................................: '.$dirBase.'</p>
+                        <p> &nbsp; &nbsp;Dirección: .................................................: '.$dirBase.'&nbsp; Tel: '.$telBase.'</p>
                         <p> &nbsp; &nbsp;Año Gravable: ..........................................: '.$anioGravable.'</p>
                     </div>
                     <div class="section middle">
