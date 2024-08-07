@@ -95,10 +95,20 @@ function allCertificates($id_organization, $querySelect, $conn)
 function getAllOrganizations($table_name_organization, $nit, $conn)
 {
     //print_r($nit);
-    $querySelectOrg = 'select o.id_organization ,o.name ,o.nit ,o.dv  from organizations o ';
+    //$querySelectOrg = 'select o.id_organization ,o.name ,o.nit ,o.dv  from organizations o ';
+    $querySelectOrg=
+    '
+    SELECT  o.id_organization ,o.name ,o.nit ,o.dv,u.id_user  
+    FROM  organizations o  
+    INNER  JOIN  users_organizations uo ON  uo.id_organization =o.id_organization 
+    INNER  JOIN  users u ON  u.id_user =uo.id_user 
+    WHERE  o.nit  =:nit;
+    ';
+
+
     //print_r($querySelectOrg);
     $stmt = $conn->prepare($querySelectOrg);
-    //$stmt->bindParam(1, $nit);
+    $stmt->bindParam(':nit', $nit);
     $stmt->execute();
     $num = $stmt->rowCount();
     //print_r($num);

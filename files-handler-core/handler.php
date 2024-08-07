@@ -553,7 +553,7 @@ function getCertificatesByOrg($conn, $idCertificate): array
                     "base_retencion" =>  $row[$i]["base_retencion"],
                     //"base_retencion" => number_format(   (number_format( $row[$i]["base_retencion"],0,',','.' )*1000),0,',','.'),                    
                     "valor_retenido" => number_format( $row[$i]["valor_retenido"],0,',','.' ),
-                    "total_val_retenido" => number_format(   (number_format( $row[$i]["total_val_ret"],0,',','.' )*1000),0,',','.'),
+                    "total_val_retenido" => $row[$i]["total_val_ret"],
                 )
             );
         }
@@ -619,7 +619,7 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
         if (strpos($certificatesData[$i]["concepto"], $regxServiciosICA) !== false) {
             $servicios .= '<td>$ ' . number_format($certificatesData[$i]["base_retencion"],0, '.','.') . '</td>';
             $valor_ret_servicios .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
-            $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
+            $valTotalReteneidoIca+=  $certificatesData[$i]["total_val_retenido"];
             $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
 
             $porcentRetServiciosArr = explode(" ",$certificatesData[$i]["concepto"]);
@@ -631,7 +631,7 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
         if (strpos($certificatesData[$i]["concepto"], $regxCompraICA) !== false) {
             $compras .= '<td>$ ' . number_format($certificatesData[$i]["base_retencion"],0, '.','.')   . '</td>';
             $valor_ret_compra .= '<td>$ ' . $certificatesData[$i]["total_val_retenido"] . '</td>';
-            $valTotalReteneidoIca+=  number_format($certificatesData[$i]["total_val_retenido"]*1000,0,',','.');
+            $valTotalReteneidoIca+=  $certificatesData[$i]["total_val_retenido"];
             $valTotalBaseRetenciontICA+=$certificatesData[$i]["base_retencion"];
 
             $porcentRetComprasArr = explode(" ",$certificatesData[$i]["concepto"]);
@@ -651,7 +651,7 @@ function generateDocPdf($conn, $idCertificate, $outPutNameFile)
         }
     }
     
-    $valTotalReteneidoIca=number_format($valTotalReteneidoIca*1000, 0, '.','.');
+    $valTotalReteneidoIca=number_format($valTotalReteneidoIca, 0, '.','.');
     $valTotalBaseRetenciontICA=number_format($valTotalBaseRetenciontICA,0, '.','.');
 
     $logger = new Logger('logger');
